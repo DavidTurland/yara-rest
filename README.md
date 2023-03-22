@@ -75,9 +75,7 @@ One of the joys of OpenAPI is the swagger editor which not only allows editting
 but is a flexible client
 
 https://editor.swagger.io/
-
-[screenshot](editor_swagger_io_screenshot.png)
-
+![editor_swagger_io_screenshot](https://user-images.githubusercontent.com/11562561/226901696-0f7e0371-a8dc-45f7-9d6e-047c75154fb5.png)
 
 ## example requests
 compile a yara rules file
