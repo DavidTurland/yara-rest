@@ -1,0 +1,9 @@
+.vscode/
+build/
+external/
+out/
+json.hpp
+build.sh
+gen/impl/
+.openapi-generator/
+*~

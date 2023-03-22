@@ -1,0 +1,236 @@
+openapi: "3.0.0"
+info:
+  version: 0.0.1
+  title: Yara Rest Server
+  description: A simple Yara Rest server
+  termsOfService: http://swagger.io/terms/
+  contact:
+    name: David Turland
+    email: david@turland.org
+    url: https://github.com/DavidTurland/yara-rest
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: http://127.0.0.1:{port}/{basepath}
+    description: Yara Test server
+    variables:
+      port:
+        enum:
+          - '8080'
+        default: '8080'
+      basepath:
+        default: api
+paths:
+  /rules/compile:
+    post:
+      description: comiles rule files, each with optional namespace
+      operationId: rules_compile_post
+      requestBody:
+        description: variable to be defined
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RuleFiles'
+      responses:
+        '200':
+          description: OK
+  /rules/save:
+    put:
+      description: 'saves precompiled rules'
+      parameters:
+        - name: filename
+          in: path
+          description: filename to save compiled rules to
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /rules/load:
+    post:
+      description: 'loads presaved compiled rules'
+      parameters:
+        - name: filename
+          in: path
+          description: filename to load compiled rules from
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /externalvar:
+    post:
+      description: defines a new external variable
+      operationId: externalvar
+      requestBody:
+        description: variable to be defined
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExternalVariable'
+      responses:
+        '200':
+          description: OK
+  /scan/file:
+    post:
+      description: |
+          scans a file using a specific scanner
+      operationId: scanfile_post
+      summary: scan a file using a specific scanner
+      requestBody:
+        $ref: '#/components/requestBodies/ScanFileBody'
+        description: Optional description in *Markdown*
+      responses:
+        '200':
+          description: scan file response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanResult'                
+components:
+  requestBodies:
+    ScanFileBody:
+      description: A JSON object containing a scan file request
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ScanFile'
+  schemas:
+    ExternalVariable:
+      type: object
+      required:
+        - component
+        - type
+        - identifier
+        - value
+      properties:
+        component:
+          description: which component to define veriable for
+          example: compiler
+          type: string
+          enum: [compiler,rules,scanner]
+        type:
+          description: type of external variable to define
+          type: string
+          example: boolean
+          enum: [integer,float,boolean,string]
+        identifier:
+          type: string
+        value:
+          type: string
+          example: true
+        scanner:
+          description: scanner to assign ext variable to (required if component isscanner)
+          type: number
+          example: 1234  
+    RuleFiles:
+      type: object
+      description: Container of Rule files
+      properties:
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleFile' 
+    RuleFile:
+      type: object
+      description: Rulefile with optional namespace
+      required:
+        - filepath
+      properties:
+        namespace:
+          description: optional namespace
+          type: string
+        filepath:    
+          description: filename of rule to compile
+          type: string     
+    ScanResult:
+      type: object
+      required:
+        - name
+      properties:
+        returncode:
+          type: string
+        rules:
+          type: array
+          maxItems: 5
+          items:
+            type: string
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+    ScanFileRules:
+      type: object
+      description: scan file request with accompanying rules
+      properties:
+        filename:
+          type: string
+          example: /home/davidt/_dev/yara-rest-admin/pay_immediately.txt
+        rules:
+          type: array
+          maxItems: 5
+          items:
+            $ref: '#/components/schemas/Rule'
+    ScanFile:
+      type: object
+      description: scan file request with a scanner( referenced by id)
+      properties:
+        scannerid:
+          description: scanner id to use
+          type: number
+          example: 0 
+        filename:
+          type: string
+          example: /home/davidt/_dev/yara-rest-admin/pay_immediately.txt
+    Namespace:
+      type: object
+      properties:
+        name:
+          type: string
+          example: malware.inc
+    Meta:
+      type: object
+      properties:
+        name:
+          type: string
+    Rule:
+      type: object
+      properties:
+        identifier:
+          type: string
+        tags:
+          type: array
+          maxItems: 3
+          items:
+            type: string
+        meta:
+          type: array
+          items:
+            $ref: '#/components/schemas/Meta'
+          example:
+            - name : meta1
+            - name : meta2
+        strings:
+          type: array
+          maxItems: 3
+          items:
+            type: string
+          example:
+            - strings1
+            - strings2
+        namespace:
+          $ref: '#/components/schemas/Namespace'
+          description: Pointer to a YR_NAMESPACE structure.
