@@ -1,6 +1,6 @@
 # yara-rest
 
-A [REST](https://en.wikipedia.org/wiki/Representational_state_transfer) server supporting reqests to the [Yara](https://github.com/VirusTotal/yara) scanner  
+A [REST](https://en.wikipedia.org/wiki/Representational_state_transfer) server supporting requests to the [Yara](https://github.com/VirusTotal/yara) scanner  
 It is fully defined in [OpenAPI](https://www.openapis.org/) 3.0, and implemented using the C++ REST server framework [pistache](https://pistacheio.github.io/pistache/)
 
 # Author
