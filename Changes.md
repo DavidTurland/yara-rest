@@ -2,7 +2,7 @@
 # Version 0.2.0
 ## features:
 ### building
-  New No-dependenncy yara-rest image build in Docker
+  New No-dependency yara-rest image-build in Docker
 ### runtime configuration  
   Bare bones Configuration file (yaml)
 ## Endpoints

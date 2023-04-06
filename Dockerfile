@@ -103,7 +103,7 @@ RUN set -ex                                         ; \
 FROM base AS runtime
 
 # a starting point but should mount /etc/yara as volume
-COPY config.yaml /etc/yara/config.yaml
+COPY conf/config.yaml /etc/yara/config.yaml
 
 COPY --from=yara_rest_builder $INSTALL_DIR/bin/yara-rest /usr/bin
 COPY --from=yara_rest_builder $INSTALL_DIR/lib/lib*      /usr/lib/

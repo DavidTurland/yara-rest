@@ -56,7 +56,7 @@ cd yara-rest
 docker build  -f Dockerfile -t yara_rest .
 ```
 ## Running container in Docker
-`/etc/yara`       path for config.yaml
+`/etc/yara`       path for config.yaml  
 `/etc/yara/rules` default rule file dir (specified in config.yaml)
 
 ```bash
@@ -96,7 +96,7 @@ https://editor.swagger.io/
 ![editor_swagger_io_screenshot](https://user-images.githubusercontent.com/11562561/226901696-0f7e0371-a8dc-45f7-9d6e-047c75154fb5.png)
 
 ## example requests
-compile a yara rules file
+### compile a yara rules file
 ```bash
 curl -X 'POST' \
   'http://127.0.0.1:8080/api/rules/compile' \
@@ -109,6 +109,24 @@ curl -X 'POST' \
     }
   ]
 }'
+```
+
+### Yara-scan a file
+```bash
+# request
+curl -X 'POST' \
+  'http://127.0.0.1:8080/api/scan/file' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "scannerid": 0,
+  "filename": "/home/davidt/_dev/yara-rest-admin/pay_immediately.txt"
+}'
+
+# response body
+
+{"rules":["Example_One"]}
+
 ```
 
 # TODO
