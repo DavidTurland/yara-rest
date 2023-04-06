@@ -38,7 +38,11 @@ void DefaultApiImpl::externalvar(const ExternalVariable &externalVariable, Pista
         response.send(Pistache::Http::Code::Not_Acceptable, "ExternalVariable not defined \n");
     }
 }
-
+void DefaultApiImpl::get_info(Pistache::Http::ResponseWriter &response) {
+    InfoResult info;
+    nlohmann::json j = info;
+    response.send(Pistache::Http::Code::Ok, j.dump());
+}
 void DefaultApiImpl::rules_compile_post(const RuleFiles &ruleFiles, Pistache::Http::ResponseWriter &response) {
     for(auto rulefile : ruleFiles.getRules()){
         const char *ns = rulefile.rNamespaceIsSet()?rulefile.getRNamespace().c_str():nullptr;
@@ -48,16 +52,13 @@ void DefaultApiImpl::rules_compile_post(const RuleFiles &ruleFiles, Pistache::Ht
     }
     response.send(Pistache::Http::Code::Ok, "rules_compile_put all compiled \n");
 }
-
 void DefaultApiImpl::rules_load_post(const std::string &filename, Pistache::Http::ResponseWriter &response) {
     response.send(Pistache::Http::Code::Not_Implemented, "work in progress\n");
 }
-
 void DefaultApiImpl::rules_save_put(const std::string &filename, Pistache::Http::ResponseWriter &response) {
     printf("DefaultApiImpl::rules_save_put!\n");
     response.send(Pistache::Http::Code::Not_Implemented, "work in progress\n");
 }
-
 void DefaultApiImpl::scanfile_post(const ScanFile &scanFile, Pistache::Http::ResponseWriter &response) {
         std::thread::id this_id = std::this_thread::get_id();
     ScanResult sr;
@@ -70,9 +71,12 @@ void DefaultApiImpl::scanfile_post(const ScanFile &scanFile, Pistache::Http::Res
     for(auto yi : yis){
       sr.setRules(yi.matched_rules);
     }
-    nlohmann::json j;
-    to_json(j,sr);
+    nlohmann::json j = sr;
     response.send(Pistache::Http::Code::Ok, j.dump());
+    //to_json(j,sr);
+    //Pistache::Http::ResponseStream stream = response.stream(Pistache::Http::Code::Ok);
+    //stream << j.;
+    //response.send(Pistache::Http::Code::Ok, j.dump());
 }
 
 } //api

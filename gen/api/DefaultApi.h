@@ -27,6 +27,7 @@
 #include <utility>
 
 #include "ExternalVariable.h"
+#include "InfoResult.h"
 #include "RuleFiles.h"
 #include "ScanFile.h"
 #include "ScanResult.h"
@@ -47,6 +48,7 @@ private:
     void setupRoutes();
 
     void externalvar_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
+    void get_info_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
     void rules_compile_post_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
     void rules_load_post_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
     void rules_save_put_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
@@ -77,6 +79,13 @@ private:
     /// </remarks>
     /// <param name="externalVariable">variable to be defined</param>
     virtual void externalvar(const org::turland::yara::model::ExternalVariable &externalVariable, Pistache::Http::ResponseWriter &response) = 0;
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <remarks>
+    /// 
+    /// </remarks>
+    virtual void get_info(Pistache::Http::ResponseWriter &response) = 0;
     /// <summary>
     /// 
     /// </summary>

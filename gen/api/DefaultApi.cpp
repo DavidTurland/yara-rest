@@ -34,6 +34,7 @@ void DefaultApi::setupRoutes() {
     using namespace Pistache::Rest;
 
     Routes::Post(*router, base + "/externalvar", Routes::bind(&DefaultApi::externalvar_handler, this));
+    Routes::Get(*router, base + "/info", Routes::bind(&DefaultApi::get_info_handler, this));
     Routes::Post(*router, base + "/rules/compile", Routes::bind(&DefaultApi::rules_compile_post_handler, this));
     Routes::Post(*router, base + "/rules/load", Routes::bind(&DefaultApi::rules_load_post_handler, this));
     Routes::Put(*router, base + "/rules/save", Routes::bind(&DefaultApi::rules_save_put_handler, this));
@@ -80,6 +81,26 @@ void DefaultApi::externalvar_handler(const Pistache::Rest::Request &request, Pis
 
     try {
         this->externalvar(externalVariable, response);
+    } catch (Pistache::Http::HttpError &e) {
+        response.send(static_cast<Pistache::Http::Code>(e.code()), e.what());
+        return;
+    } catch (std::exception &e) {
+        const std::pair<Pistache::Http::Code, std::string> errorInfo = this->handleOperationException(e);
+        response.send(errorInfo.first, errorInfo.second);
+        return;
+    }
+
+    } catch (std::exception &e) {
+        response.send(Pistache::Http::Code::Internal_Server_Error, e.what());
+    }
+
+}
+void DefaultApi::get_info_handler(const Pistache::Rest::Request &, Pistache::Http::ResponseWriter response) {
+    try {
+
+
+    try {
+        this->get_info(response);
     } catch (Pistache::Http::HttpError &e) {
         response.send(static_cast<Pistache::Http::Code>(e.code()), e.what());
         return;

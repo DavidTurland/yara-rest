@@ -22,7 +22,6 @@ namespace org::turland::yara::model
 ScanResult::ScanResult()
 {
     m_Returncode = "";
-    m_ReturncodeIsSet = false;
     m_RulesIsSet = false;
     
 }
@@ -81,8 +80,8 @@ bool ScanResult::operator==(const ScanResult& rhs) const
     return
     
     
-    
-    ((!returncodeIsSet() && !rhs.returncodeIsSet()) || (returncodeIsSet() && rhs.returncodeIsSet() && getReturncode() == rhs.getReturncode())) &&
+    (getReturncode() == rhs.getReturncode())
+     &&
     
     
     ((!rulesIsSet() && !rhs.rulesIsSet()) || (rulesIsSet() && rhs.rulesIsSet() && getRules() == rhs.getRules()))
@@ -98,8 +97,7 @@ bool ScanResult::operator!=(const ScanResult& rhs) const
 void to_json(nlohmann::json& j, const ScanResult& o)
 {
     j = nlohmann::json();
-    if(o.returncodeIsSet())
-        j["returncode"] = o.m_Returncode;
+    j["returncode"] = o.m_Returncode;
     if(o.rulesIsSet() || !o.m_Rules.empty())
         j["rules"] = o.m_Rules;
     
@@ -107,11 +105,7 @@ void to_json(nlohmann::json& j, const ScanResult& o)
 
 void from_json(const nlohmann::json& j, ScanResult& o)
 {
-    if(j.find("returncode") != j.end())
-    {
-        j.at("returncode").get_to(o.m_Returncode);
-        o.m_ReturncodeIsSet = true;
-    } 
+    j.at("returncode").get_to(o.m_Returncode);
     if(j.find("rules") != j.end())
     {
         j.at("rules").get_to(o.m_Rules);
@@ -127,15 +121,6 @@ std::string ScanResult::getReturncode() const
 void ScanResult::setReturncode(std::string const& value)
 {
     m_Returncode = value;
-    m_ReturncodeIsSet = true;
-}
-bool ScanResult::returncodeIsSet() const
-{
-    return m_ReturncodeIsSet;
-}
-void ScanResult::unsetReturncode()
-{
-    m_ReturncodeIsSet = false;
 }
 std::vector<std::string> ScanResult::getRules() const
 {

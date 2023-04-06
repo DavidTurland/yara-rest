@@ -15,15 +15,15 @@ maintained in the main thread. This avoids unnecessary scanner creation per requ
 
 However If rules are changed, the reliant scanners are magicly outdated
 
-
 ## end-points
 Defined in the OpenAPI spec, but here:
 1. `/externalvar`   defining external variables for compiler, rules, and 'particular' scanners
 1. `/rules/compile` compiling rules from file(s) each with an optional namespace
 1. `/scan/file`     scanning files with a particular scanner
-
+1. `/info`          lightweight call to obtain server status
 
 # Requirements
+**NOTE** : _all_ requirements are brought in if the Docker build route is taken 
 
 ## yara ( with `yr_scanner_copy` )
 The yara api is sadly missing the ability to copy a scanner, ie there is no `yr_scanner_copy`  
@@ -49,21 +49,39 @@ make install
 
 ## cmake
 
-# Building
-Assumes the above yara build with yr_scanner_copy has been installed in `yara_install`
-
+# Building Docker image, and running as container
 ```bash
 gh repo clone DavidTurland/yara-rest
 cd yara-rest
-mkdir build
-cd !$
-cmake ..
+docker build  -f Dockerfile -t yara_rest .
+```
+## Running container in Docker
+`/etc/yara`       path for config.yaml
+`/etc/yara/rules` default rule file dir (specified in config.yaml)
+
+```bash
+mkdir -p rules
+docker run  -p 8080:8080                   \
+            -v $(pwd)/conf:/etc/yara       \
+            -v $(pwd)rules:/etc/yara/rules \
+            yara_rest
+```
+
+# Building and running 'manually'
+Assumes the above yara build with yr_scanner_copy has been installed in `yara_install`
+## Building 'manually'
+```bash
+gh repo clone DavidTurland/yara-rest
+cd yara-rest
+cmake -S . -G Ninja -B build 
+cmake --build build  
+cmake --build build --target install 
 # or change variables, eg YARA_INSTALL_DIR
 # ccmake ..
 make
 ```
 
-## Running
+## Running 'manually'
 This will start a server running on port `8080`
 ```bash
 yara-server
@@ -94,28 +112,39 @@ curl -X 'POST' \
 ```
 
 # TODO
+
+Docker
+- [x]  Docker image build
+
 Additonal end-points:
 - [ ] ability to scan strings
 - [ ] reload 
 
 Functionality:
-- [ ] configuartion options (ports, rules, external variables etc)
+- [x] configuration options (ports, rules)
+- [ ] configuration options (external variables etc)
 - [ ] https support
+
 
 Implement placeholder functionality
 - [ ] save and load compiled rules
 - [ ] magic to outdate scanner
 
 ## Developing yara-rest
+### The manual way
 
 The docker invocation in `docker_openapi.sh` will regenerate the C++ Pistache files in `gen/*`
-It assumes `meld` is installed
 
 ```bash
 # to generate
 bash docker_gen_openapi.sh -g
 cd build
 make
+```
+### The Docker way
+Or you can just build using docker(see above)
+```bash
+docker build  -f Dockerfile -t yara_rest .
 ```
 
 ## Thanks to

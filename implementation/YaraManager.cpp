@@ -14,30 +14,26 @@
 
 #include "Helpers.h"
 #include "ExternalVariable.h"
-
-#include "simple_cpp_logger/Logger.h"
+#include <glog/logging.h>
 
 namespace org::turland::yara
 {
 
-Manager::Manager():rule_version{}{
+Manager::Manager():rule_version{},compiler(rule_version){
     int init = yr_initialize();
     if (init != ERROR_SUCCESS){
         startupSuccess = false;
-        LogFatal << "yr_initialize failed: " << getErrorMsg(init);
+        LOG(ERROR)  << "yr_initialize failed: " << getErrorMsg(init);
         return;
     }
     createCompiler();
 }
 
 Manager::~Manager(){
-    if (compiler != NULL){
-        yr_compiler_destroy(compiler);
-    }
 
     int finalise = yr_finalize();
     if (finalise != ERROR_SUCCESS){
-        LogError << "yr_finalize failed: " << getErrorMsg(finalise);
+        LOG(ERROR) << "yr_finalize failed: " << getErrorMsg(finalise);
         return;
     }
 }
@@ -45,24 +41,24 @@ Manager::~Manager(){
 bool Manager::compileRulesFromFile(std::string file_name,const char * ns){
     FILE* rule_file = fopen(file_name.c_str(), "r");
     if (rule_file == NULL){
-        LogError << "Failed to open " << file_name << "," << getErrorMsg(errno);
+        LOG(ERROR) << "Failed to open " << file_name << "," << getErrorMsg(errno);
         return false;
     }
     const char *error_file= nullptr;
-    int result = yr_compiler_add_file(compiler, rule_file, ns, error_file);
+    int result = compiler.add_file(rule_file, ns, error_file);
     if (result != ERROR_SUCCESS){
-        LogError << "Failed to add rules from " << file_name << "," << getErrorMsg(result);
+        LOG(ERROR) << "Failed to add rules from " << file_name << "," << getErrorMsg(result);
         return false;
     }
 
-    result = yr_compiler_get_rules(compiler, &rules);
+    result = compiler.get_rules(&rules);
 
     if (result != ERROR_SUCCESS){
-        LogError << "Failed to get rules from " << file_name << "," << getErrorMsg(result);
+        LOG(ERROR) << "Failed to get rules from " << file_name << "," << getErrorMsg(result);
         return false;
     }
 
-    LogInfo << "compileRulesFromFile Added" << file_name;
+    LOG(INFO) << "compileRulesFromFile Added" << file_name;
     rule_version++;
     return true;
 }
@@ -82,55 +78,28 @@ bool Manager::compileRulesFromDirectory(std::string rule_directory, bool bVerbos
         file_count++;
     }
 
-    LogInfo << "compileRulesFromDirectory Added " << succes_count << "/" <<  file_count;
+    LOG(INFO) << "compileRulesFromDirectory Added " << succes_count << "/" <<  file_count;
 
-    int result = yr_compiler_get_rules(compiler, &rules);
+    int result = compiler.get_rules(&rules);
 
     if (result != ERROR_SUCCESS){
-        LogError << "compileRulesFromDirectory Failed yr_compiler_get_rules from" <<  
+        LOG(ERROR) << "compileRulesFromDirectory Failed yr_compiler_get_rules from" <<  
                rule_directory << ","<< getErrorMsg(result);
         return false;
     }
     else{
-        LogInfo <<  "compileRulesFromDirectory yr_compiler_get_rules";
+        LOG(INFO) <<  "compileRulesFromDirectory yr_compiler_get_rules";
         rule_version++;
         return true;
     }
 }
 
 bool Manager::defineExternal(const ExternalVariable &externalVariable){
-    LogInfo << "define_external type " << externalVariable.getType() <<  ","
+    LOG(INFO) << "define_external type " << externalVariable.getType() <<  ","
                 << "identifier " << externalVariable.getIdentifier() << ","
                 << "getComponent " << externalVariable.getComponent();// no error
     if(externalVariable.getComponent() == "compiler"){
-        if( externalVariable.getType() == "integer"){
-            int32_t value;
-            if(helpers::fromStringValue(externalVariable.getValue(),value)){
-                int success =  yr_compiler_define_integer_variable(compiler,externalVariable.getIdentifier().c_str(),value);
-                return (ERROR_SUCCESS ==success);
-            }
-        }
-        else if( externalVariable.getType() == "float"){
-            float value;
-            if(helpers::fromStringValue(externalVariable.getValue(),value)){
-                int success =  yr_compiler_define_float_variable(compiler,externalVariable.getIdentifier().c_str(),value);
-                return (ERROR_SUCCESS ==success);
-            }
-        }
-        else if( externalVariable.getType() == "boolean"){
-            bool value;
-            if(helpers::fromStringValue(externalVariable.getValue(),value)){
-                int success =  yr_compiler_define_boolean_variable(compiler,externalVariable.getIdentifier().c_str(),value);
-                LogInfo << "define_external" << externalVariable.getType() <<  externalVariable.getIdentifier();// no error
-                return (ERROR_SUCCESS ==success);
-            }
-        }
-        else if( externalVariable.getType() == "string"){
-            int success =  yr_compiler_define_string_variable(compiler,externalVariable.getIdentifier().c_str(),externalVariable.getValue().c_str());
-            return (ERROR_SUCCESS ==success);
-        }else{
-            return false;
-        }
+        return compiler.defineExternal(externalVariable);
     }
     else if(externalVariable.getComponent() == "rules"){
         if( externalVariable.getType() == "integer"){
@@ -153,7 +122,7 @@ bool Manager::defineExternal(const ExternalVariable &externalVariable){
             bool value;
             if(helpers::fromStringValue(externalVariable.getValue(),value)){
                 int success =  yr_rules_define_boolean_variable(rules,externalVariable.getIdentifier().c_str(),value);
-                LogInfo << "define_external " << externalVariable.getType() <<  externalVariable.getIdentifier();// no error
+                LOG(INFO) << "define_external " << externalVariable.getType() <<  externalVariable.getIdentifier();// no error
                 rule_version++;
                 return (ERROR_SUCCESS ==success);
             }
@@ -183,13 +152,13 @@ YaraScanner Manager::getScanner(long id){
 
     int result = yr_scanner_create(rules, &yscanner.scanner);
     if (result != ERROR_SUCCESS){
-        LogError << "Failed to create scanner" << result;
+        LOG(ERROR) << "Failed to create scanner" << result;
         yscanner.scanner = nullptr;
         yscanner.rule_version = -1;
         return yscanner;
     }
     scanners.insert(std::pair{id,yscanner});
-    LogInfo << "get_scanner created with id:" << id;
+    LOG(INFO) << "get_scanner created with id:" << id;
     return yscanner;
 }
 
@@ -213,7 +182,7 @@ std::vector<YaraInfo> Manager::scanFile(const std::string& filename,long scanner
 
 
 void Manager::createCompiler(){
-    int create = yr_compiler_create(&compiler);
+    int create = compiler.create();
     startupSuccess = (create == ERROR_SUCCESS);
 }
 

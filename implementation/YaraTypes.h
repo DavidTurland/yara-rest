@@ -5,13 +5,30 @@
 #include <string>
 #include <map>
 #include <yara.h>
-#include "simple_cpp_logger/Logger.h"
-
+//#include "simple_cpp_logger/Logger.h"
+#include "ExternalVariable.h"
 namespace org::turland::yara
 {
+
+ using   namespace org::turland::yara::model;
 struct YaraInfo{
     std::vector<std::string> matched_rules;
 };
+
+struct YaraCompiler{
+    YaraCompiler(int &rule_version);
+    ~YaraCompiler();
+    bool create();
+    bool destroy();
+    int add_file(FILE* rule_file, const char * ns, const char *error_file);
+    int get_rules(YR_RULES** rules);
+    bool defineExternal(const ExternalVariable &externalVariable);
+private:
+    YR_COMPILER* compiler;
+    int &rule_version;
+    bool get_rules_called;
+    bool add_called;
+ };
 
 struct YaraScanner{
     YR_SCANNER* scanner;

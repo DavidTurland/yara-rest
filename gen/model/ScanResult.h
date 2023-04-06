@@ -64,8 +64,6 @@ public:
     /// </summary>
     std::string getReturncode() const;
     void setReturncode(std::string const& value);
-    bool returncodeIsSet() const;
-    void unsetReturncode();
     /// <summary>
     /// 
     /// </summary>
@@ -78,7 +76,7 @@ public:
     friend  void from_json(const nlohmann::json& j, ScanResult& o);
 protected:
     std::string m_Returncode;
-    bool m_ReturncodeIsSet;
+
     std::vector<std::string> m_Rules;
     bool m_RulesIsSet;
     

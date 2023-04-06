@@ -53,6 +53,7 @@ public:
                             org::turland::yara::Manager& yara);
     ~DefaultApiImpl() override = default;
     void externalvar(const ExternalVariable &externalVariable, Pistache::Http::ResponseWriter &response);
+    void get_info(Pistache::Http::ResponseWriter &response);
     void rules_compile_post(const RuleFiles &ruleFiles, Pistache::Http::ResponseWriter &response);
     void rules_load_post(const std::string &filename, Pistache::Http::ResponseWriter &response);
     void rules_save_put(const std::string &filename, Pistache::Http::ResponseWriter &response);

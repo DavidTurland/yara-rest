@@ -54,7 +54,7 @@ namespace org::turland::yara
         bool defineExternal(const ExternalVariable &externalVariable);
 
     private:
-        YR_COMPILER* compiler = NULL;
+        YaraCompiler compiler;
 
         // One Rules object
         YR_RULES* rules = NULL;

@@ -1,0 +1,27 @@
+meta:
+  date: 1/2/23
+  version: 1
+  description: a config file
+server:
+  port: 8080
+  num_threads: 20
+yara:
+  rules_dir: /etc/yara/rules
+  rules:
+    - file: wibble.yar
+      description: the wibbles
+      ns:   foo
+    - file: wobble.yar
+      description: the wobbles
+      ns:   bar
+  external_variable:
+    compiler:
+    - key: akey
+      value: avalue  
+    scanners:
+    - id : 0
+      key: akey1
+      value: avalue
+    rule:
+    - key: akey2
+      value: avalue  

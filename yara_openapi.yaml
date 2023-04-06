@@ -22,6 +22,16 @@ servers:
       basepath:
         default: api
 paths:
+  /info:
+    get:
+      operationId: get_info
+      responses:
+        '200':
+          description: info file response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InfoResult'
   /rules/compile:
     post:
       description: comiles rule files, each with optional namespace
@@ -152,7 +162,19 @@ components:
     ScanResult:
       type: object
       required:
-        - name
+        - returncode
+      properties:
+        returncode:
+          type: string
+        rules:
+          type: array
+          maxItems: 5
+          items:
+            type: string
+    InfoResult:
+      type: object
+      required:
+        - returncode
       properties:
         returncode:
           type: string
