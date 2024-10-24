@@ -25,9 +25,6 @@ RUN set -ex                                                                     
 
 # build custom yara  
 RUN set -ex                                               ; \
-    mkdir -p $BUILD_DIR/src                               ; \ 
-    cd $BUILD_DIR/src                                     ; \ 
-    git clone https://github.com/DavidTurland/yara        ; \
     cd yara                                               ; \
     git switch dturland_feature_yr_scanner_copy           ; \
     ./bootstrap.sh                                        ; \
@@ -38,9 +35,6 @@ RUN set -ex                                               ; \
 
 # build nlohmann
 RUN set -ex                                               ; \
-    mkdir -p $BUILD_DIR/src                               ; \ 
-    cd $BUILD_DIR/src                                     ; \ 
-    git clone https://github.com/nlohmann/json.git        ; \
     cd json                                               ; \
     rm -rf   build                                        ; \
     mkdir -p build                                        ; \
@@ -52,9 +46,6 @@ RUN set -ex                                               ; \
 
 # build yaml-cpp
 RUN set -ex                                               ; \
-    mkdir -p $BUILD_DIR/src                               ; \ 
-    cd $BUILD_DIR/src                                     ; \ 
-    git clone https://github.com/jbeder/yaml-cpp.git      ; \
     cd yaml-cpp                                           ; \
     rm -rf   build                                        ; \
     mkdir -p build                                        ; \
@@ -67,9 +58,6 @@ RUN set -ex                                               ; \
 # build pistache
 # --wipe
 RUN set -ex                                               ; \
-    mkdir -p $BUILD_DIR/src                               ; \ 
-    cd $BUILD_DIR/src                                     ; \ 
-    git clone https://github.com/pistacheio/pistache.git  ; \
     cd pistache                                           ; \
     meson setup build                      \   
               --prefix=$INSTALL_DIR        \ 
