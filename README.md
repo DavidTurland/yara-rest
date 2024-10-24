@@ -37,21 +37,11 @@ I have forked yara, and added a functioning `yr_scanner_copy` on the dturland_fe
 YR_API int yr_scanner_copy(YR_SCANNER* scanner_root,YR_SCANNER** scanner)
 ```
 
-Fork, and branch, can be checked out and built thusly:
-```bash
-gh repo clone DavidTurland/yara
-cd yara
-git switch dturland_feature_yr_scanner_copy
-./bootstrap.sh
-./configure --prefix=`pwd`/../yara_install --enable-cuckoo
-make install
-```
-
 ## cmake
 
 # Building Docker image, and running as container
 ```bash
-gh repo clone DavidTurland/yara-rest
+git clone --recurse-submodules https://github.com/DavidTurland/yara-rest.git
 cd yara-rest
 docker build  -f Dockerfile -t yara_rest .
 ```
@@ -71,7 +61,7 @@ docker run  -p 8080:8080                   \
 Assumes the above yara build with yr_scanner_copy has been installed in `yara_install`
 ## Building 'manually'
 ```bash
-gh repo clone DavidTurland/yara-rest
+git clone https://github.com/DavidTurland/yara-rest.git
 cd yara-rest
 cmake -S . -G Ninja -B build 
 cmake --build build  
