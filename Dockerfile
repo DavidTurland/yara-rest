@@ -23,10 +23,12 @@ RUN set -ex                                                                     
     curl -L https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/6.3.0/openapi-generator-cli-6.3.0.jar   \
          -o $BUILD_DIR/openapi-generator-cli.jar
 
+COPY . $BUILD_DIR
+
+
 # build custom yara  
 RUN set -ex                                               ; \
-    cd yara                                               ; \
-    git switch dturland_feature_yr_scanner_copy           ; \
+    cd $BUILD_DIR/yara                                    ; \
     ./bootstrap.sh                                        ; \
     ./configure --prefix=$INSTALL_DIR                 \
                 --disable-static                      \
@@ -35,7 +37,7 @@ RUN set -ex                                               ; \
 
 # build nlohmann
 RUN set -ex                                               ; \
-    cd json                                               ; \
+    cd $BUILD_DIR/json                                               ; \
     rm -rf   build                                        ; \
     mkdir -p build                                        ; \
     cmake -S . -G Ninja -B build                               \
@@ -46,7 +48,7 @@ RUN set -ex                                               ; \
 
 # build yaml-cpp
 RUN set -ex                                               ; \
-    cd yaml-cpp                                           ; \
+    cd $BUILD_DIR/yaml-cpp                                           ; \
     rm -rf   build                                        ; \
     mkdir -p build                                        ; \
     cmake -S . -G Ninja -B build                                \
@@ -58,7 +60,7 @@ RUN set -ex                                               ; \
 # build pistache
 # --wipe
 RUN set -ex                                               ; \
-    cd pistache                                           ; \
+    cd $BUILD_DIR/pistache                                           ; \
     meson setup build                      \   
               --prefix=$INSTALL_DIR        \ 
               --default-library=static     \     
@@ -71,10 +73,10 @@ RUN set -ex                                               ; \
 FROM builder AS yara_rest_builder
 
 # build yara-rest
-COPY . $BUILD_DIR/yara_rest
+# COPY . $BUILD_DIR/yara_rest
 
 RUN set -ex                                         ; \
-    cd $BUILD_DIR/yara_rest                         ; \
+    cd $BUILD_DIR                                   ; \
     bash local_openapi.sh -g                        ; \
     rm -rf   build                                  ; \
     mkdir -p build                                  ; \
