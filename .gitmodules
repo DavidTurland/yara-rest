@@ -1,7 +1,7 @@
 [submodule "yara"]
 	path = yara
 	url = https://github.com/DavidTurland/yara.git
-	branch = dturland_feature_yr_scanner_copy
+	branch = yara_scanner_copy
 [submodule "json"]
 	path = json
 	url = https://github.com/nlohmann/json.git
@@ -9,5 +9,5 @@
 	path = pistache
 	url = https://github.com/pistacheio/pistache.git
 [submodule "yaml-cpp"]
-	path = yml-cpp
+	path = yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp.git
