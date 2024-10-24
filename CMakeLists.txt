@@ -18,6 +18,8 @@ set(YARA_INSTALL_DIR     ${PROJECT_SOURCE_DIR}/../yara_install
 
 option( YARA_REST_INSTALL "generation of yara-rest install targets" no)
 
+set(BUILD_SIMPLE_CPP_LOGGER yes
+    CACHE BOOL "should we install simple_cpp_logger")
 set(BUILD_NLOHMANN yes
     CACHE BOOL "should we build nlohmann")
 

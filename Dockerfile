@@ -7,6 +7,9 @@ FROM debian:sid-slim AS base
 
 ENV INSTALL_DIR=/usr/local
 ENV BUILD_DIR=/usr/local/build
+# ENV OPENAPI_GEN_VER=6.3.0
+ENV OPENAPI_GEN_VER=7.9.0
+
 RUN set -ex        ; \
     apt-get update ; \
     apt-get install -y libgoogle-glog-dev rapidjson-dev libjansson-dev libssl-dev 
@@ -20,11 +23,17 @@ RUN set -ex                                                                     
     mkdir -p $INSTALL_DIR/bin                                                                                                  ; \
     mkdir -p $INSTALL_DIR/lib                                                                                                  ; \
     mkdir -p $BUILD_DIR/bin                                                                                                    ; \
-    curl -L https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/6.3.0/openapi-generator-cli-6.3.0.jar   \
+    curl -L https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/${OPENAPI_GEN_VER}/openapi-generator-cli-${OPENAPI_GEN_VER}.jar   \
          -o $BUILD_DIR/openapi-generator-cli.jar
+
 
 COPY . $BUILD_DIR
 
+# swizzle the simple_cpp_logger headers into place
+RUN set -ex                                          ; \
+    mkdir -p $INSTALL_DIR/include/simple_cpp_logger ; \
+    cp -r $BUILD_DIR/simple-cpp-logger/include/* $INSTALL_DIR/include/simple_cpp_logger/ ; \
+    ls -l $INSTALL_DIR/include/simple_cpp_logger/
 
 # build custom yara  
 RUN set -ex                                               ; \
@@ -89,6 +98,7 @@ RUN set -ex                                         ; \
           -D CMAKE_BUILD_TYPE=Release               ; \
     cmake --build build                             ; \
     cmake --build build --target install 
+
 
 FROM base AS runtime
 
