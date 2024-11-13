@@ -4,7 +4,7 @@
 #include "yara_scanner_copy.h"
 namespace org::turland::yara
 {
-ScannerThreadLocal::ScannerThreadLocal():manager{}{}
+ScannerThreadLocal::ScannerThreadLocal():manager{},rule_version{}{}
 
 ScannerThreadLocal::~ScannerThreadLocal(){
     for(auto scanner: scanners){
@@ -16,12 +16,18 @@ void ScannerThreadLocal::init(Manager * _manager){
    manager = _manager;
 }
 
-YR_SCANNER* ScannerThreadLocal::get_scanner(long id){
-    scanner_container_it scit = scanners.find(id);
+YR_SCANNER* ScannerThreadLocal::get_scanner(long scanner_id){
+    scanner_container_it scit = scanners.find(scanner_id);
     if (scit != scanners.end()){
         return scit->second.scanner;
     }
-    YaraScanner scanner_golden = manager->getScanner(id);
+    YaraScanner scanner_golden = manager->getScanner(scanner_id);
+    if (scanner_golden.rule_version != rule_version){
+        //TODO : invalidate cache
+
+    }else{
+        rule_version = scanner_golden.rule_version;
+    }
 
     YaraScanner yscanner(nullptr,scanner_golden.rule_version);
 
@@ -31,7 +37,7 @@ YR_SCANNER* ScannerThreadLocal::get_scanner(long id){
         printf("Failed to yr_scanner_copy scanner: %d\n", result);
         return nullptr;
     }
-    scanners.insert(std::pair{id,yscanner} );
+    scanners.insert(std::pair{scanner_id,yscanner} );
     yr_scanner_set_callback(yscanner.scanner,capture_matches,&yaraInfo);
     return yscanner.scanner;
 }
@@ -47,8 +53,10 @@ int ScannerThreadLocal::capture_matches(YR_SCAN_CONTEXT* context, int message, v
 
         yr_rule_strings_foreach(rule, string){
             std::string rule_name = rule->identifier;
-            if (vectorContainsString(yaraInfo->matched_rules, rule_name) == false){
-                yaraInfo->matched_rules.push_back(rule_name);
+            std::string naimspace = rule->ns->name;
+            std::string full_rule_name = naimspace + ":" + rule_name;
+            if (vectorContainsString(yaraInfo->matched_rules, full_rule_name) == false){
+                yaraInfo->matched_rules.push_back(full_rule_name);
             }
         }
     }

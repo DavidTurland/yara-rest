@@ -30,10 +30,10 @@ RUN set -ex                                                                     
 COPY . $BUILD_DIR
 
 # swizzle the simple_cpp_logger headers into place
-RUN set -ex                                          ; \
-    mkdir -p $INSTALL_DIR/include/simple_cpp_logger ; \
-    cp -r $BUILD_DIR/simple-cpp-logger/include/* $INSTALL_DIR/include/simple_cpp_logger/ ; \
-    ls -l $INSTALL_DIR/include/simple_cpp_logger/
+#RUN set -ex                                          ; \
+#    mkdir -p $INSTALL_DIR/include/simple_cpp_logger ; \
+#    cp -r $BUILD_DIR/simple-cpp-logger/include/* $INSTALL_DIR/include/simple_cpp_logger/ ; \
+#    ls -l $INSTALL_DIR/include/simple_cpp_logger/
 
 # build custom yara  
 RUN set -ex                                               ; \

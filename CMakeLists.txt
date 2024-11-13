@@ -18,8 +18,6 @@ set(YARA_INSTALL_DIR     ${PROJECT_SOURCE_DIR}/../yara_install
 
 option( YARA_REST_INSTALL "generation of yara-rest install targets" no)
 
-set(BUILD_SIMPLE_CPP_LOGGER yes
-    CACHE BOOL "should we install simple_cpp_logger")
 set(BUILD_NLOHMANN yes
     CACHE BOOL "should we build nlohmann")
 
@@ -64,12 +62,14 @@ link_directories(${YARA_INSTALL_DIR}/lib)
 include_directories(${YARA_INSTALL_DIR}/include)
 include_directories(${GEN_DIR}/model)
 include_directories(${GEN_DIR}/api)
+include_directories(${GEN_DIR}/statemap)
 
 include_directories(impl)
 
 file(GLOB SRCS
     ${GEN_DIR}/api/*.cpp
     ${GEN_DIR}/model/*.cpp
+    # ${GEN_DIR}/statemap/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/implementation/DefaultApiImpl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/implementation/main-api-server.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/implementation/ScannerThreadLocal.cpp

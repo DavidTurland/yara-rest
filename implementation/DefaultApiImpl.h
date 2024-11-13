@@ -19,22 +19,23 @@
 #ifndef DEFAULT_API_IMPL_H_
 #define DEFAULT_API_IMPL_H_
 
+#include <memory>
+#include <optional>
+#include <string>
+#include <thread>
+
 
 #include <pistache/endpoint.h>
 #include <pistache/http.h>
 #include <pistache/router.h>
-#include <memory>
-#include <optional>
 
 #include <DefaultApi.h>
-#include <thread>
 #include <yara.h>
 #include "YaraManager.h"
 #include "Error.h"
 #include "ExternalVariable.h"
 #include "ScanFile.h"
 #include "ScanResult.h"
-#include <string>
 
 /**
  * NOTE: 
@@ -58,6 +59,7 @@ public:
     void rules_load_post(const std::string &filename, Pistache::Http::ResponseWriter &response);
     void rules_save_put(const std::string &filename, Pistache::Http::ResponseWriter &response);
     void scanfile_post(const ScanFile &scanFile, Pistache::Http::ResponseWriter &response);
+    void scanstring_post(const ScanString &scanString, Pistache::Http::ResponseWriter &response);
 
 private:
     org::turland::yara::Manager& yara;

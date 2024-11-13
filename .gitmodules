@@ -11,6 +11,4 @@
 [submodule "yaml-cpp"]
 	path = yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp.git
-[submodule "simple-cpp-logger"]
-	path = simple-cpp-logger
-	url = https://github.com/nadrino/simple-cpp-logger.git
+

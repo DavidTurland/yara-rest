@@ -11,7 +11,7 @@
 */
 
 
-#include "ScanResult.h"
+#include "InfoResult.h"
 #include "Helpers.h"
 
 #include <sstream>
@@ -19,14 +19,14 @@
 namespace org::turland::yara::model
 {
 
-ScanResult::ScanResult()
+InfoResult::InfoResult()
 {
     m_Returncode = "";
     m_RulesIsSet = false;
     
 }
 
-void ScanResult::validate() const
+void InfoResult::validate() const
 {
     std::stringstream msg;
     if (!validate(msg))
@@ -35,15 +35,15 @@ void ScanResult::validate() const
     }
 }
 
-bool ScanResult::validate(std::stringstream& msg) const
+bool InfoResult::validate(std::stringstream& msg) const
 {
     return validate(msg, "");
 }
 
-bool ScanResult::validate(std::stringstream& msg, const std::string& pathPrefix) const
+bool InfoResult::validate(std::stringstream& msg, const std::string& pathPrefix) const
 {
     bool success = true;
-    const std::string _pathPrefix = pathPrefix.empty() ? "ScanResult" : pathPrefix;
+    const std::string _pathPrefix = pathPrefix.empty() ? "InfoResult" : pathPrefix;
 
              
     if (rulesIsSet())
@@ -75,7 +75,7 @@ bool ScanResult::validate(std::stringstream& msg, const std::string& pathPrefix)
     return success;
 }
 
-bool ScanResult::operator==(const ScanResult& rhs) const
+bool InfoResult::operator==(const InfoResult& rhs) const
 {
     return
     
@@ -89,12 +89,12 @@ bool ScanResult::operator==(const ScanResult& rhs) const
     ;
 }
 
-bool ScanResult::operator!=(const ScanResult& rhs) const
+bool InfoResult::operator!=(const InfoResult& rhs) const
 {
     return !(*this == rhs);
 }
 
-void to_json(nlohmann::json& j, const ScanResult& o)
+void to_json(nlohmann::json& j, const InfoResult& o)
 {
     j = nlohmann::json::object();
     j["returncode"] = o.m_Returncode;
@@ -103,7 +103,7 @@ void to_json(nlohmann::json& j, const ScanResult& o)
     
 }
 
-void from_json(const nlohmann::json& j, ScanResult& o)
+void from_json(const nlohmann::json& j, InfoResult& o)
 {
     j.at("returncode").get_to(o.m_Returncode);
     if(j.find("rules") != j.end())
@@ -114,28 +114,28 @@ void from_json(const nlohmann::json& j, ScanResult& o)
     
 }
 
-std::string ScanResult::getReturncode() const
+std::string InfoResult::getReturncode() const
 {
     return m_Returncode;
 }
-void ScanResult::setReturncode(std::string const& value)
+void InfoResult::setReturncode(std::string const& value)
 {
     m_Returncode = value;
 }
-std::vector<std::string> ScanResult::getRules() const
+std::vector<std::string> InfoResult::getRules() const
 {
     return m_Rules;
 }
-void ScanResult::setRules(std::vector<std::string> const& value)
+void InfoResult::setRules(std::vector<std::string> const& value)
 {
     m_Rules = value;
     m_RulesIsSet = true;
 }
-bool ScanResult::rulesIsSet() const
+bool InfoResult::rulesIsSet() const
 {
     return m_RulesIsSet;
 }
-void ScanResult::unsetRules()
+void InfoResult::unsetRules()
 {
     m_RulesIsSet = false;
 }

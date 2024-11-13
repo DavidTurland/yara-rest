@@ -10,13 +10,13 @@
 * Do not edit the class manually.
 */
 /*
- * Error.h
+ * ScanString.h
  *
- * 
+ * scan string with a scanner( referenced by id)
  */
 
-#ifndef Error_H_
-#define Error_H_
+#ifndef ScanString_H_
+#define ScanString_H_
 
 
 #include <string>
@@ -26,13 +26,13 @@ namespace org::turland::yara::model
 {
 
 /// <summary>
-/// 
+/// scan string with a scanner( referenced by id)
 /// </summary>
-class  Error
+class  ScanString
 {
 public:
-    Error();
-    virtual ~Error() = default;
+    ScanString();
+    virtual ~ScanString() = default;
 
 
     /// <summary>
@@ -52,33 +52,46 @@ public:
     /// </summary>
     bool validate(std::stringstream& msg, const std::string& pathPrefix) const;
 
-    bool operator==(const Error& rhs) const;
-    bool operator!=(const Error& rhs) const;
+    bool operator==(const ScanString& rhs) const;
+    bool operator!=(const ScanString& rhs) const;
 
     /////////////////////////////////////////////
-    /// Error members
+    /// ScanString members
 
+    /// <summary>
+    /// scanner id to use
+    /// </summary>
+    int32_t getScannerid() const;
+    void setScannerid(int32_t const value);
+    bool scanneridIsSet() const;
+    void unsetScannerid();
     /// <summary>
     /// 
     /// </summary>
-    int32_t getCode() const;
-    void setCode(int32_t const value);
+    std::string getData() const;
+    void setData(std::string const& value);
+    bool dataIsSet() const;
+    void unsetData();
     /// <summary>
     /// 
     /// </summary>
-    std::string getMessage() const;
-    void setMessage(std::string const& value);
+    int32_t getLength() const;
+    void setLength(int32_t const value);
+    bool lengthIsSet() const;
+    void unsetLength();
 
-    friend  void to_json(nlohmann::json& j, const Error& o);
-    friend  void from_json(const nlohmann::json& j, Error& o);
+    friend  void to_json(nlohmann::json& j, const ScanString& o);
+    friend  void from_json(const nlohmann::json& j, ScanString& o);
 protected:
-    int32_t m_Code;
-
-    std::string m_Message;
-
+    int32_t m_Scannerid;
+    bool m_ScanneridIsSet;
+    std::string m_Data;
+    bool m_DataIsSet;
+    int32_t m_Length;
+    bool m_LengthIsSet;
     
 };
 
 } // namespace org::turland::yara::model
 
-#endif /* Error_H_ */
+#endif /* ScanString_H_ */
