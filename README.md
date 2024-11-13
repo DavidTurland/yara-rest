@@ -5,7 +5,7 @@ It is fully defined in [OpenAPI](https://www.openapis.org/) 3.0, and implemented
 
 # Author
 David Turland
-https://www.educative.io/answers/how-to-specify-a-branch-tag-when-adding-a-git-submodule
+
 ## Description
 
 Provides a performant, multi-threaded (via threadpool), REST server allowing compiling rules, defining external variables, and efficient file scanning using persistent, per-thread, scanner objects
@@ -20,6 +20,7 @@ Defined in the OpenAPI spec, but here:
 1. `/externalvar`   defining external variables for compiler, rules, and 'particular' scanners
 1. `/rules/compile` compiling rules from file(s) each with an optional namespace
 1. `/scan/file`     scanning files with a particular scanner
+1. `/scan/string`   scan a string with a particular scanner
 1. `/info`          lightweight call to obtain server status
 
 # Requirements
@@ -147,7 +148,7 @@ curl -X 'POST' \
 # response body
 
 {"returncode":"","rules":["Example_One"]}
-
+```
 
 
 
@@ -164,7 +165,7 @@ Docker
 - [x]  Docker image build
 
 Additonal end-points:
-- [ ] ability to scan strings
+- [x] ability to scan strings
 - [ ] reload 
 
 Functionality:
@@ -196,4 +197,5 @@ docker build  -f Dockerfile -t yara_rest .
 
 ## Thanks to
 Starting point for YaraManager* taken from this C++ api to yara:
+
 https://mez0.cc/posts/yaraengine/
