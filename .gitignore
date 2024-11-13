@@ -8,8 +8,6 @@ json.hpp
 build.sh
 gen/impl/
 gen/statemap/
-pistache/
-pistache.io/
 samples/
 rules/
 test/__pycache__/
