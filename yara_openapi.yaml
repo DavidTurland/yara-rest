@@ -1,6 +1,6 @@
 openapi: "3.0.0"
 info:
-  version: 0.0.1
+  version: 0.0.2
   title: Yara Rest Server
   description: A simple Yara Rest server
   termsOfService: http://swagger.io/terms/
@@ -101,7 +101,23 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ScanResult'                
+                $ref: '#/components/schemas/ScanResult'
+  /scan/string:
+    post:
+      description: |
+          scans a string using a specific scanner
+      operationId: scanstring_post
+      summary: scan a string using a specific scanner
+      requestBody:
+        $ref: '#/components/requestBodies/ScanStringBody'
+        description: Optional description in *Markdown*
+      responses:
+        '200':
+          description: scan string response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanResult'            
 components:
   requestBodies:
     ScanFileBody:
@@ -111,6 +127,13 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ScanFile'
+    ScanStringBody:
+      description: A JSON object containing a scan string request
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ScanString'
   schemas:
     ExternalVariable:
       type: object
@@ -137,7 +160,8 @@ components:
           example: true
         scanner:
           description: scanner to assign ext variable to (required if component isscanner)
-          type: number
+          type: integer
+          format: int64
           example: 1234  
     RuleFiles:
       type: object
@@ -212,11 +236,28 @@ components:
       properties:
         scannerid:
           description: scanner id to use
-          type: number
+          type: integer
+          format: int32
           example: 0 
         filename:
           type: string
           example: /home/davidt/_dev/yara-rest-admin/pay_immediately.txt
+    ScanString:
+      type: object
+      description: scan string with a scanner( referenced by id)
+      properties:
+        scannerid:
+          description: scanner id to use
+          type: integer
+          format: int32
+          example: 0 
+        data:
+          type: string
+          example: wibble.com
+        length:
+          type: integer
+          format: int32
+          example: 10
     Namespace:
       type: object
       properties:

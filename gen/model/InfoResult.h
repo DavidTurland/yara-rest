@@ -10,16 +10,17 @@
 * Do not edit the class manually.
 */
 /*
- * Error.h
+ * InfoResult.h
  *
  * 
  */
 
-#ifndef Error_H_
-#define Error_H_
+#ifndef InfoResult_H_
+#define InfoResult_H_
 
 
 #include <string>
+#include <vector>
 #include <nlohmann/json.hpp>
 
 namespace org::turland::yara::model
@@ -28,11 +29,11 @@ namespace org::turland::yara::model
 /// <summary>
 /// 
 /// </summary>
-class  Error
+class  InfoResult
 {
 public:
-    Error();
-    virtual ~Error() = default;
+    InfoResult();
+    virtual ~InfoResult() = default;
 
 
     /// <summary>
@@ -52,33 +53,35 @@ public:
     /// </summary>
     bool validate(std::stringstream& msg, const std::string& pathPrefix) const;
 
-    bool operator==(const Error& rhs) const;
-    bool operator!=(const Error& rhs) const;
+    bool operator==(const InfoResult& rhs) const;
+    bool operator!=(const InfoResult& rhs) const;
 
     /////////////////////////////////////////////
-    /// Error members
+    /// InfoResult members
 
     /// <summary>
     /// 
     /// </summary>
-    int32_t getCode() const;
-    void setCode(int32_t const value);
+    std::string getReturncode() const;
+    void setReturncode(std::string const& value);
     /// <summary>
     /// 
     /// </summary>
-    std::string getMessage() const;
-    void setMessage(std::string const& value);
+    std::vector<std::string> getRules() const;
+    void setRules(std::vector<std::string> const& value);
+    bool rulesIsSet() const;
+    void unsetRules();
 
-    friend  void to_json(nlohmann::json& j, const Error& o);
-    friend  void from_json(const nlohmann::json& j, Error& o);
+    friend  void to_json(nlohmann::json& j, const InfoResult& o);
+    friend  void from_json(const nlohmann::json& j, InfoResult& o);
 protected:
-    int32_t m_Code;
+    std::string m_Returncode;
 
-    std::string m_Message;
-
+    std::vector<std::string> m_Rules;
+    bool m_RulesIsSet;
     
 };
 
 } // namespace org::turland::yara::model
 
-#endif /* Error_H_ */
+#endif /* InfoResult_H_ */

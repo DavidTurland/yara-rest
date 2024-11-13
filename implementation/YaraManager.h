@@ -12,7 +12,7 @@
 
 #include <thread>
 #include <map>
-
+#include <shared_mutex>
 #include "YaraTypes.h"
 #include "ScannerThreadLocal.h"
 #include "ExternalVariable.h"
@@ -42,9 +42,10 @@ namespace org::turland::yara
          * else creates new scanner from current rules
         */
         YaraScanner getScanner(long scanner_id);
+        scanner_container_it getScanner_safe_(long scanner_id);
 
         std::vector<YaraInfo> scanFile(const std::string& filename,long scanner_id);
-
+        std::vector<YaraInfo> scanString(const std::string& memory,int32_t length,long scanner_id);
         /**
          * defines external variables for compiler, scanner, or rules
          * 'meta' contained in externalVariable
@@ -56,13 +57,21 @@ namespace org::turland::yara
     private:
         YaraCompiler compiler;
 
-        // One Rules object
-        YR_RULES* rules = NULL;
+        // One Rules object - needs to be instantiated via say 
+        // compileRulesFromDirectory before we can use it 
+        YR_RULES* rules = nullptr;
+        bool compiler_has_stuff = false;
+        // when we expect an instantiated rules object
+        YR_RULES* getRules();
 
         int rule_version;
 
         // but multiple scanners
         scanner_container scanners;
+        mutable std::shared_mutex scanners_mutex_;
+
+        // compiling rules should be mutexed
+        mutable std::shared_mutex compiler_mutex_;
 
         void createCompiler();
 

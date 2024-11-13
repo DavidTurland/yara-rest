@@ -7,6 +7,9 @@ FROM debian:sid-slim AS base
 
 ENV INSTALL_DIR=/usr/local
 ENV BUILD_DIR=/usr/local/build
+# ENV OPENAPI_GEN_VER=6.3.0
+ENV OPENAPI_GEN_VER=7.9.0
+
 RUN set -ex        ; \
     apt-get update ; \
     apt-get install -y libgoogle-glog-dev rapidjson-dev libjansson-dev libssl-dev 
@@ -20,16 +23,21 @@ RUN set -ex                                                                     
     mkdir -p $INSTALL_DIR/bin                                                                                                  ; \
     mkdir -p $INSTALL_DIR/lib                                                                                                  ; \
     mkdir -p $BUILD_DIR/bin                                                                                                    ; \
-    curl -L https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/6.3.0/openapi-generator-cli-6.3.0.jar   \
+    curl -L https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/${OPENAPI_GEN_VER}/openapi-generator-cli-${OPENAPI_GEN_VER}.jar   \
          -o $BUILD_DIR/openapi-generator-cli.jar
+
+
+COPY . $BUILD_DIR
+
+# swizzle the simple_cpp_logger headers into place
+#RUN set -ex                                          ; \
+#    mkdir -p $INSTALL_DIR/include/simple_cpp_logger ; \
+#    cp -r $BUILD_DIR/simple-cpp-logger/include/* $INSTALL_DIR/include/simple_cpp_logger/ ; \
+#    ls -l $INSTALL_DIR/include/simple_cpp_logger/
 
 # build custom yara  
 RUN set -ex                                               ; \
-    mkdir -p $BUILD_DIR/src                               ; \ 
-    cd $BUILD_DIR/src                                     ; \ 
-    git clone https://github.com/DavidTurland/yara        ; \
-    cd yara                                               ; \
-    git switch dturland_feature_yr_scanner_copy           ; \
+    cd $BUILD_DIR/yara                                    ; \
     ./bootstrap.sh                                        ; \
     ./configure --prefix=$INSTALL_DIR                 \
                 --disable-static                      \
@@ -38,10 +46,7 @@ RUN set -ex                                               ; \
 
 # build nlohmann
 RUN set -ex                                               ; \
-    mkdir -p $BUILD_DIR/src                               ; \ 
-    cd $BUILD_DIR/src                                     ; \ 
-    git clone https://github.com/nlohmann/json.git        ; \
-    cd json                                               ; \
+    cd $BUILD_DIR/json                                               ; \
     rm -rf   build                                        ; \
     mkdir -p build                                        ; \
     cmake -S . -G Ninja -B build                               \
@@ -52,10 +57,7 @@ RUN set -ex                                               ; \
 
 # build yaml-cpp
 RUN set -ex                                               ; \
-    mkdir -p $BUILD_DIR/src                               ; \ 
-    cd $BUILD_DIR/src                                     ; \ 
-    git clone https://github.com/jbeder/yaml-cpp.git      ; \
-    cd yaml-cpp                                           ; \
+    cd $BUILD_DIR/yaml-cpp                                           ; \
     rm -rf   build                                        ; \
     mkdir -p build                                        ; \
     cmake -S . -G Ninja -B build                                \
@@ -67,10 +69,7 @@ RUN set -ex                                               ; \
 # build pistache
 # --wipe
 RUN set -ex                                               ; \
-    mkdir -p $BUILD_DIR/src                               ; \ 
-    cd $BUILD_DIR/src                                     ; \ 
-    git clone https://github.com/pistacheio/pistache.git  ; \
-    cd pistache                                           ; \
+    cd $BUILD_DIR/pistache                                           ; \
     meson setup build                      \   
               --prefix=$INSTALL_DIR        \ 
               --default-library=static     \     
@@ -83,10 +82,10 @@ RUN set -ex                                               ; \
 FROM builder AS yara_rest_builder
 
 # build yara-rest
-COPY . $BUILD_DIR/yara_rest
+# COPY . $BUILD_DIR/yara_rest
 
 RUN set -ex                                         ; \
-    cd $BUILD_DIR/yara_rest                         ; \
+    cd $BUILD_DIR                                   ; \
     bash local_openapi.sh -g                        ; \
     rm -rf   build                                  ; \
     mkdir -p build                                  ; \
@@ -99,6 +98,7 @@ RUN set -ex                                         ; \
           -D CMAKE_BUILD_TYPE=Release               ; \
     cmake --build build                             ; \
     cmake --build build --target install 
+
 
 FROM base AS runtime
 

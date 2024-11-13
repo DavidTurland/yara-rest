@@ -5,7 +5,7 @@ It is fully defined in [OpenAPI](https://www.openapis.org/) 3.0, and implemented
 
 # Author
 David Turland
-
+https://www.educative.io/answers/how-to-specify-a-branch-tag-when-adding-a-git-submodule
 ## Description
 
 Provides a performant, multi-threaded (via threadpool), REST server allowing compiling rules, defining external variables, and efficient file scanning using persistent, per-thread, scanner objects
@@ -37,41 +37,37 @@ I have forked yara, and added a functioning `yr_scanner_copy` on the dturland_fe
 YR_API int yr_scanner_copy(YR_SCANNER* scanner_root,YR_SCANNER** scanner)
 ```
 
-Fork, and branch, can be checked out and built thusly:
-```bash
-gh repo clone DavidTurland/yara
-cd yara
-git switch dturland_feature_yr_scanner_copy
-./bootstrap.sh
-./configure --prefix=`pwd`/../yara_install --enable-cuckoo
-make install
-```
-
 ## cmake
 
 # Building Docker image, and running as container
 ```bash
-gh repo clone DavidTurland/yara-rest
+git clone --recurse-submodules https://github.com/DavidTurland/yara-rest.git
 cd yara-rest
+git submodule update --init
+
 docker build  -f Dockerfile -t yara_rest .
 ```
 ## Running container in Docker
-`/etc/yara`       path for config.yaml  
+`/etc/yara`       path for config.yaml
 `/etc/yara/rules` default rule file dir (specified in config.yaml)
+`/var/yara/samples`       path for files to be tested
 
 ```bash
 mkdir -p rules
+mkdir -p samples
 docker run  -p 8080:8080                   \
             -v $(pwd)/conf:/etc/yara       \
-            -v $(pwd)rules:/etc/yara/rules \
+            -v $(pwd)/rules:/etc/yara/rules \
+            -v $(pwd)/samples:/var/yara/samples \
+            -e GLOG_logtostderr=1 \
             yara_rest
 ```
 
-# Building and running 'manually'
-Assumes the above yara build with yr_scanner_copy has been installed in `yara_install`
-## Building 'manually'
+# Building and running locally
+
+## Building locally
 ```bash
-gh repo clone DavidTurland/yara-rest
+git clone --recurse-submodules  https://github.com/DavidTurland/yara-rest.git
 cd yara-rest
 cmake -S . -G Ninja -B build 
 cmake --build build  
@@ -81,7 +77,7 @@ cmake --build build --target install
 make
 ```
 
-## Running 'manually'
+## Running locally
 This will start a server running on port `8080`
 ```bash
 yara-server
@@ -96,8 +92,10 @@ https://editor.swagger.io/
 ![editor_swagger_io_screenshot](https://user-images.githubusercontent.com/11562561/226901696-0f7e0371-a8dc-45f7-9d6e-047c75154fb5.png)
 
 ## example requests
-### compile a yara rules file
+### compile a yara rules file ( assumes the the docker volume mount $(pwd)rules:/etc/yara/rules
+
 ```bash
+cp test/resources/detect_demand.yar rules
 curl -X 'POST' \
   'http://127.0.0.1:8080/api/rules/compile' \
   -H 'accept: */*' \
@@ -105,7 +103,8 @@ curl -X 'POST' \
   -d '{
   "rules": [
     {
-      "filepath": "/home/davidt/_dev/yara-rest-admin/detect_demand.yar"
+      "filepath": "/etc/yara/rules/detect_demand.yar",
+      "namespace": "test"
     }
   ]
 }'
@@ -114,20 +113,50 @@ curl -X 'POST' \
 ### Yara-scan a file
 ```bash
 # request
+cp test/resources/pay_immediately.txt samples
 curl -X 'POST' \
   'http://127.0.0.1:8080/api/scan/file' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
   "scannerid": 0,
-  "filename": "/home/davidt/_dev/yara-rest-admin/pay_immediately.txt"
+  "filename": "/var/yara/samples/pay_immediately.txt"
 }'
 
 # response body
 
-{"rules":["Example_One"]}
+{"returncode":"","rules":["Example_One"]}
 
 ```
+
+
+### Yara-scan a string
+```bash
+# request
+cp test/resources/pay_immediately.txt samples
+curl -X 'POST' \
+  'http://127.0.0.1:8080/api/scan/string' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "scannerid": 0,
+  "data": "pay immediately",
+  "length" : 15
+}'
+
+# response body
+
+{"returncode":"","rules":["Example_One"]}
+
+
+
+
+# Performance
+https://locust.io/#install
+
+python3 -m venv ./.venv
+source ./.venv/bin/activate
+pip install locust
 
 # TODO
 

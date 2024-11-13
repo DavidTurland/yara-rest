@@ -1,17 +1,17 @@
 /**
 * 
 */
-
-#include "pistache/endpoint.h"
-#include "pistache/http.h"
-#include "pistache/router.h"
 #ifdef __linux__
-#include <vector>
-#include <signal.h>
-#include <unistd.h>
+#  include <vector>
+#  include <signal.h>
+#  include <unistd.h>
 #endif
 
 #include <glog/logging.h>
+#include "pistache/endpoint.h"
+#include "pistache/http.h"
+#include "pistache/router.h"
+
 #include "Configurator.h"
 #include "DefaultApiImpl.h"
 #include "YaraManager.h"

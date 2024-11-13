@@ -5,7 +5,7 @@
 #include <string>
 #include <map>
 #include <yara.h>
-//#include "simple_cpp_logger/Logger.h"
+
 #include "ExternalVariable.h"
 namespace org::turland::yara
 {
@@ -35,6 +35,7 @@ struct YaraScanner{
     long        rule_version;
     YaraScanner(long  _rule_version):scanner(nullptr),rule_version(_rule_version){}
     YaraScanner(YR_SCANNER* _scanner,long  _rule_version):scanner(_scanner),rule_version(_rule_version){}
+    bool defineExternal(const ExternalVariable &externalVariable);
 };
 
 typedef std::map<long,YaraScanner>  scanner_container;
