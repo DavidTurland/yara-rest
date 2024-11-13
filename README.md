@@ -67,15 +67,42 @@ docker run  -p 8080:8080                   \
 # Building and running locally
 
 ## Building locally
+
+Packages required (Dockerfile option might be easier :-) )
+```
+apt-get install -y \
+  libgoogle-glog-dev \
+  rapidjson-dev \
+  libjansson-dev \
+  libssl-dev \
+  g++ \
+  curl \
+  meson \
+  flex \
+  bison \
+  make \
+  cmake \
+  pkg-config \
+  git \
+  automake \
+  autoconf \
+  libtool \
+  openjdk-17-jre-headless
+```
+
+Build using cmake
+
 ```bash
 git clone --recurse-submodules  https://github.com/DavidTurland/yara-rest.git
 cd yara-rest
-cmake -S . -G Ninja -B build 
+git submodule update --init
+
+# cmake -S . -G Ninja -B build
+cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr/local -S . -G Ninja -B build
 cmake --build build  
 cmake --build build --target install 
 # or change variables, eg YARA_INSTALL_DIR
 # ccmake ..
-make
 ```
 
 ## Running locally

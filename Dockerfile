@@ -29,12 +29,6 @@ RUN set -ex                                                                     
 
 COPY . $BUILD_DIR
 
-# swizzle the simple_cpp_logger headers into place
-#RUN set -ex                                          ; \
-#    mkdir -p $INSTALL_DIR/include/simple_cpp_logger ; \
-#    cp -r $BUILD_DIR/simple-cpp-logger/include/* $INSTALL_DIR/include/simple_cpp_logger/ ; \
-#    ls -l $INSTALL_DIR/include/simple_cpp_logger/
-
 # build custom yara  
 RUN set -ex                                               ; \
     cd $BUILD_DIR/yara                                    ; \
@@ -46,7 +40,7 @@ RUN set -ex                                               ; \
 
 # build nlohmann
 RUN set -ex                                               ; \
-    cd $BUILD_DIR/json                                               ; \
+    cd $BUILD_DIR/json                                    ; \
     rm -rf   build                                        ; \
     mkdir -p build                                        ; \
     cmake -S . -G Ninja -B build                               \
@@ -57,10 +51,10 @@ RUN set -ex                                               ; \
 
 # build yaml-cpp
 RUN set -ex                                               ; \
-    cd $BUILD_DIR/yaml-cpp                                           ; \
+    cd $BUILD_DIR/yaml-cpp                                ; \
     rm -rf   build                                        ; \
     mkdir -p build                                        ; \
-    cmake -S . -G Ninja -B build                                \
+    cmake -S . -G Ninja -B build                       \
                -D CMAKE_INSTALL_PREFIX=$INSTALL_DIR    \
                -D YAML_BUILD_SHARED_LIBS=OFF              ; \
     cmake --build build                                   ; \
@@ -69,7 +63,7 @@ RUN set -ex                                               ; \
 # build pistache
 # --wipe
 RUN set -ex                                               ; \
-    cd $BUILD_DIR/pistache                                           ; \
+    cd $BUILD_DIR/pistache                                ; \
     meson setup build                      \   
               --prefix=$INSTALL_DIR        \ 
               --default-library=static     \     
@@ -89,10 +83,11 @@ RUN set -ex                                         ; \
     bash local_openapi.sh -g                        ; \
     rm -rf   build                                  ; \
     mkdir -p build                                  ; \
-    cmake -S . -G Ninja -B build                        \
+    cmake -S . -G Ninja -B build               \
           -D CMAKE_INSTALL_PREFIX=$INSTALL_DIR \
           -D YARA_INSTALL_DIR=$INSTALL_DIR     \
           -D BUILD_NLOHMANN=no                 \
+          -D BUILD_YARA=no                     \
           -D BUILD_YAML_CPP=no                 \
           -D BUILD_PISTACHE=no                 \
           -D CMAKE_BUILD_TYPE=Release               ; \

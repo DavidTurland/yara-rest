@@ -21,6 +21,9 @@ option( YARA_REST_INSTALL "generation of yara-rest install targets" no)
 set(BUILD_NLOHMANN yes
     CACHE BOOL "should we build nlohmann")
 
+set(BUILD_YARA yes
+    CACHE BOOL "should we build yara")
+
 set(BUILD_YAML_CPP yes
     CACHE BOOL "should we build yaml cpp")
 
@@ -37,6 +40,19 @@ if (BUILD_PISTACHE)
             -DPISTACHE_USE_SSL=true
             --libdir=lib
         INSTALL_COMMAND   meson install -C build
+    )
+endif()
+
+if (BUILD_YARA)
+    ExternalProject_Add(YARA
+        BUILD_IN_SOURCE true
+        SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/yara
+        CONFIGURE_COMMAND ./bootstrap.sh COMMAND ./configure
+            --prefix=${EXTERNAL_INSTALL_DIR}
+            --disable-static
+            --enable-cuckoo
+        BUILD_COMMAND make
+        INSTALL_COMMAND   make install
     )
 endif()
 
