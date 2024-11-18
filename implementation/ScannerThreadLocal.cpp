@@ -14,6 +14,7 @@ ScannerThreadLocal::~ScannerThreadLocal(){
 
 void ScannerThreadLocal::init(Manager * _manager){
    manager = _manager;
+   yaraInfo.matched_rules.clear();
 }
 
 YR_SCANNER* ScannerThreadLocal::get_scanner(long scanner_id){
