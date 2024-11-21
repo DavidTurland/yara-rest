@@ -91,6 +91,7 @@ file(GLOB SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/implementation/ScannerThreadLocal.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/implementation/YaraManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/implementation/YaraTypes.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/implementation/YaraHelpers.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SRCS} )

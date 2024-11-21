@@ -2,10 +2,11 @@
 #define SCANNER_THREAD_LOCAL_H
 // #include "ScannerThreadLocal.h"
 #include "YaraTypes.h"
+#include "ScanResult.h"
 
 namespace org::turland::yara
 {
-
+using namespace org::turland::yara::model;
 class Manager;
 
 class ScannerThreadLocal{
@@ -18,7 +19,7 @@ public:
 
     YR_SCANNER* get_scanner(long id);
 
-    YaraInfo yaraInfo;
+    YaraScanResultRules yaraInfo;
 private:
     bool CreateScanner();
     static int capture_matches(YR_SCAN_CONTEXT* context, int message, void* message_data, void* user_data);

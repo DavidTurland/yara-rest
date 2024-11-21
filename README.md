@@ -46,7 +46,7 @@ git clone --recurse-submodules https://github.com/DavidTurland/yara-rest.git
 cd yara-rest
 git submodule update --init
 
-docker build  -f Dockerfile -t yara_rest .
+make build
 ```
 ## Running container in Docker
 `/etc/yara`       path for config.yaml
@@ -54,14 +54,7 @@ docker build  -f Dockerfile -t yara_rest .
 `/var/yara/samples`       path for files to be tested
 
 ```bash
-mkdir -p rules
-mkdir -p samples
-docker run  -p 8080:8080                   \
-            -v $(pwd)/conf:/etc/yara       \
-            -v $(pwd)/rules:/etc/yara/rules \
-            -v $(pwd)/samples:/var/yara/samples \
-            -e GLOG_logtostderr=1 \
-            yara_rest
+make run
 ```
 
 # Building and running locally
@@ -153,7 +146,8 @@ curl -X 'POST' \
 
 # response body
 
-{"returncode":"","rules":["Example_One"]}
+{"returncode":"","rules":[{"identifier":"Example_One","meta":{"my_identifier_1":"Some string data"},"namespace":"test"}]}
+
 
 ```
 
@@ -161,7 +155,6 @@ curl -X 'POST' \
 ### Yara-scan a string
 ```bash
 # request
-cp test/resources/pay_immediately.txt samples
 curl -X 'POST' \
   'http://127.0.0.1:8080/api/scan/string' \
   -H 'accept: application/json' \
@@ -173,8 +166,8 @@ curl -X 'POST' \
 }'
 
 # response body
+{"returncode":"","rules":[{"identifier":"Example_One","meta":{"my_identifier_1":"Some string data"},"namespace":"test"}]}
 
-{"returncode":"","rules":["Example_One"]}
 ```
 
 
@@ -196,6 +189,7 @@ Additonal end-points:
 - [ ] reload 
 
 Functionality:
+- [x] Full Rule informations captured in scan result
 - [x] configuration options (ports, rules)
 - [ ] configuration options (external variables etc)
 - [ ] https support

@@ -5,6 +5,7 @@
 #include <streambuf>
 #include <algorithm>
 
+#include "Rule.h"
 namespace org::turland::yara
 {
 
@@ -32,5 +33,7 @@ inline bool vectorContainsString(std::vector<std::string> haystack, std::string 
 	return false;
 }
 
-}
+void log_rule(const org::turland::yara::model::Rule& rule);
+
+} // namespace org::turland::yara
 #endif
