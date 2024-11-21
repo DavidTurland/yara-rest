@@ -1,6 +1,6 @@
 openapi: "3.0.0"
 info:
-  version: 0.0.2
+  version: 0.3.0
   title: Yara Rest Server
   description: A simple Yara Rest server
   termsOfService: http://swagger.io/terms/
@@ -49,6 +49,7 @@ paths:
   /rules/save:
     put:
       description: 'saves precompiled rules'
+      operationId: rules_save_put
       parameters:
         - name: filename
           in: path
@@ -62,6 +63,7 @@ paths:
   /rules/load:
     post:
       description: 'loads presaved compiled rules'
+      operationId: rules_load_post
       parameters:
         - name: filename
           in: path
@@ -192,9 +194,8 @@ components:
           type: string
         rules:
           type: array
-          maxItems: 5
           items:
-            type: string
+            $ref: '#/components/schemas/Rule' 
     InfoResult:
       type: object
       required:
@@ -202,11 +203,13 @@ components:
       properties:
         returncode:
           type: string
-        rules:
-          type: array
-          maxItems: 5
-          items:
+        meta:
+          type: object
+          additionalProperties:
             type: string
+          example:
+            version : '0.3'
+            texture : shiny
     Error:
       type: object
       required:
@@ -280,12 +283,12 @@ components:
           items:
             type: string
         meta:
-          type: array
-          items:
-            $ref: '#/components/schemas/Meta'
+          type: object
+          additionalProperties:
+            type: string
           example:
-            - name : meta1
-            - name : meta2
+            domain : meta1
+            reason : meta2
         strings:
           type: array
           maxItems: 3
@@ -295,5 +298,6 @@ components:
             - strings1
             - strings2
         namespace:
-          $ref: '#/components/schemas/Namespace'
-          description: Pointer to a YR_NAMESPACE structure.
+          type: string
+          example:
+            domain : wibblenamespace

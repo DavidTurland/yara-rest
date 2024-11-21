@@ -1,8 +1,8 @@
 #include <glog/logging.h>
+#include "pistache/http_defs.h"
 
 #include "YaraTypes.h"
 #include "Helpers.h"
-#include "pistache/http_defs.h"
 
 namespace org::turland::yara
 {

@@ -11,7 +11,9 @@
 #include <iostream>
 #include <mutex>
 #include <shared_mutex>
+
 #include <glog/logging.h>
+
 //#include "YaraRestFSM.h"
 #include "YaraManager.h"
 #include "YaraHelpers.hpp"
@@ -49,6 +51,11 @@ bool Manager::compileRulesFromFile(std::string file_name,const char * ns){
         LOG(ERROR) << "Failed to open " << file_name << "," << getErrorMsg(errno);
         return false;
     }
+    if (compiler_is_broke){
+        LOG(ERROR) << "compileRulesFromFile from " << file_name 
+             << ", failed as compiler is broke";
+        return false;
+    }
     std::unique_lock sc_unique_lock(compiler_mutex_);
     if( nullptr != rules){
          LOG(ERROR) << "compileRulesFromFile from " << file_name 
@@ -65,7 +72,8 @@ bool Manager::compileRulesFromFile(std::string file_name,const char * ns){
     int result = compiler.add_file(rule_file, ns, error_file);
     if (result != ERROR_SUCCESS){
         LOG(ERROR) << "compileRulesFromFile Failed to add rules from " 
-           << file_name << "," << getErrorMsg(result);
+           << file_name << ",compiler is now broke. " << getErrorMsg(result);
+        compiler_is_broke = true;
         return false;
     }
     compiler_has_stuff = true;
@@ -184,40 +192,33 @@ YaraScanner Manager::getScanner(long id){
 }
 
 // called from response thread
-std::vector<YaraInfo> Manager::scanFile(const std::string& filename,long scanner_id){
-    std::vector<YaraInfo> allYaraInfo;
+YaraScanResultRules Manager::scanFile(const std::string& filename,long scanner_id){
+    //std::vector<YaraInfo> allYaraInfo;
 
     yaratl.init(this);
     int result = yr_scanner_scan_file(yaratl.get_scanner(scanner_id), filename.c_str());
 
     if (yaratl.yaraInfo.matched_rules.size() > 0) {
-        allYaraInfo.push_back(yaratl.yaraInfo);
-        for (auto m : allYaraInfo){
-            for (auto r : m.matched_rules){
-                std::cout << r << std::endl;
-            }
+        for (auto r : yaratl.yaraInfo.matched_rules){
+            log_rule(r);
         }
     }
-    return allYaraInfo;
+    return yaratl.yaraInfo;
 }
 
 // called from response thread
-std::vector<YaraInfo> Manager::scanString(const std::string& memory,int32_t length,long scanner_id){
-    std::vector<YaraInfo> allYaraInfo;
+YaraScanResultRules Manager::scanString(const std::string& memory,int32_t length,long scanner_id){
 
     yaratl.init(this);
     int result = yr_scanner_scan_mem(yaratl.get_scanner(scanner_id), 
     (const unsigned char*)(memory.c_str()),length);
 
     if (yaratl.yaraInfo.matched_rules.size() > 0) {
-        allYaraInfo.push_back(yaratl.yaraInfo);
-        for (auto m : allYaraInfo){
-            for (auto r : m.matched_rules){
-                std::cout << r << std::endl;
-            }
+        for (auto r : yaratl.yaraInfo.matched_rules){
+            log_rule(r);
         }
     }
-    return allYaraInfo;
+    return yaratl.yaraInfo;
 }
 
 void Manager::createCompiler(){
@@ -242,9 +243,7 @@ YR_RULES* Manager::getRules(){
                 return rules;
             }            
         }
-
     }else{
-
         throw std::runtime_error("Attempting to use rules before creation");
     }
 

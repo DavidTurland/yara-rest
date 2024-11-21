@@ -1,9 +1,11 @@
 rule Example_One
 {
-strings:
-$string1 = "pay"
-$string2 = "immediately"
+    meta:
+        my_identifier_1 = "Some string data"
+    strings:
+        $string1 = "pay"
+        $string2 = "immediately"
 
-condition:
-($string1 and $string2)
+    condition:
+        ($string1 and $string2)
 }

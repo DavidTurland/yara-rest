@@ -1,3 +1,8 @@
+#include <string> 
+#include <iostream> 
+
+#include <glog/logging.h>
+
 #include "ScannerThreadLocal.h"
 #include "YaraManager.h"
 #include "YaraHelpers.hpp"
@@ -35,7 +40,7 @@ YR_SCANNER* ScannerThreadLocal::get_scanner(long scanner_id){
     int result = yr_scanner_copy(scanner_golden.scanner, &yscanner.scanner);
     //int result = yr_new_scanner_copy(scanner_golden.scanner, &yscanner.scanner);
     if (result != ERROR_SUCCESS){
-        printf("Failed to yr_scanner_copy scanner: %d\n", result);
+        LOG(ERROR) << "Failed to yr_scanner_copy scanner: " << result << std::endl;
         return nullptr;
     }
     scanners.insert(std::pair{scanner_id,yscanner} );
@@ -44,22 +49,74 @@ YR_SCANNER* ScannerThreadLocal::get_scanner(long scanner_id){
 }
 
 //static
-int ScannerThreadLocal::capture_matches(YR_SCAN_CONTEXT* context, int message, void* message_data, void* user_data){
-    YaraInfo* yaraInfo = static_cast<YaraInfo*>(user_data);
+int ScannerThreadLocal::capture_matches(
+    /**
+     * see yara/cli/yara.c::handle_message for inspiration
+     * rule->identifier aka rule name
+     * this is called for each matching rule
+     */
+    YR_SCAN_CONTEXT* context, 
+    int message, 
+    void* message_data, 
+    void* user_data){
+    YaraScanResultRules* yaraInfo = static_cast<YaraScanResultRules*>(user_data);
 
     if (message == CALLBACK_MSG_RULE_MATCHING)
     {
+        Rule s_rule;
         YR_RULE* rule = (YR_RULE*)message_data;
-        YR_STRING* string;
-
-        yr_rule_strings_foreach(rule, string){
+        {
             std::string rule_name = rule->identifier;
-            std::string naimspace = rule->ns->name;
-            std::string full_rule_name = naimspace + ":" + rule_name;
-            if (vectorContainsString(yaraInfo->matched_rules, full_rule_name) == false){
-                yaraInfo->matched_rules.push_back(full_rule_name);
+            s_rule.setIdentifier(rule_name);
+
+            if ( nullptr != rule->ns){           
+                if ( nullptr != rule->ns->name){
+                    std::string naimspace = rule->ns->name;
+                    s_rule.setRNamespace(naimspace);
+                }
             }
+            // these are all the strings
+            // not just the matching strings
+            // so make opitonal
+            // std::vector<std::string> m_Strings;
+            // YR_STRING* stringy;
+            // yr_rule_strings_foreach(rule, stringy){
+            //     std::string s((char *)stringy->string,stringy->length);
+            //     if (vectorContainsString(m_Strings, s) == false){
+            //         m_Strings.push_back(s);
+            //     }
+            // }
+            // s_rule.setStrings(m_Strings);            
+        } 
+
+        {    
+            std::map<std::string, std::string> m_Meta;
+            YR_META* meta;
+            // from cli/yara.c
+            yr_rule_metas_foreach(rule, meta){
+                // it's a LL so this tests if
+                // it is not the first element
+                // if (meta != rule->metas){
+                //   _tprintf(_T(","));
+                // }
+
+                switch(meta->type) {
+                case META_TYPE_INTEGER:
+                    VLOG(2) << "capture_matches meta int " << meta->identifier  << ":" << std::to_string(meta->integer) << std::endl;
+                    m_Meta.insert({meta->identifier,std::to_string(meta->integer)});
+                    break;
+                case META_TYPE_STRING:
+                    VLOG(2)  << "capture_matches meta string " << meta->identifier  << ":" << meta->string << std::endl;
+                    m_Meta.insert({meta->identifier,meta->string});
+                    break;
+                case META_TYPE_BOOLEAN:
+                    VLOG(2) << "capture_matches meta int " << meta->identifier  << ":" << std::to_string(meta->integer) << std::endl;
+                    m_Meta.insert({meta->identifier,meta->integer ? "true" : "false"});
+                }
+            }
+            s_rule.setMeta(m_Meta);            
         }
+        yaraInfo->matched_rules.push_back(std::move(s_rule));
     }
     return CALLBACK_CONTINUE;
 }
