@@ -1,6 +1,6 @@
 /**
-* Yara Rest Server
-* A simple Yara Rest server
+* Yara REST Server
+* A Yara REST server
 *
 * The version of the OpenAPI document: 0.3.0
 * Contact: david@turland.org
@@ -99,7 +99,7 @@ private:
     /// 
     /// </summary>
     /// <remarks>
-    /// 
+    /// Requests server info  - API version  - OpenAPI version  - num_threads 
     /// </remarks>
     virtual void get_info(Pistache::Http::ResponseWriter &response) = 0;
     /// <summary>
@@ -114,7 +114,7 @@ private:
     /// 
     /// </summary>
     /// <remarks>
-    /// loads presaved compiled rules
+    /// Loads pre-compiled rules&#39;
     /// </remarks>
     /// <param name="filename">filename to load compiled rules from</param>
     virtual void rules_load_post(const std::string &filename, Pistache::Http::ResponseWriter &response) = 0;
@@ -122,7 +122,7 @@ private:
     /// 
     /// </summary>
     /// <remarks>
-    /// saves precompiled rules
+    /// Saves compiled rules&#39;
     /// </remarks>
     /// <param name="filename">filename to save compiled rules to</param>
     virtual void rules_save_put(const std::string &filename, Pistache::Http::ResponseWriter &response) = 0;

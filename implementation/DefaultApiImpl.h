@@ -36,6 +36,7 @@
 #include "ExternalVariable.h"
 #include "ScanFile.h"
 #include "ScanResult.h"
+#include "Configurator.h"
 
 /**
  * NOTE: 
@@ -51,7 +52,8 @@ using namespace org::turland::yara::model;
 class  DefaultApiImpl : public org::turland::yara::api::DefaultApi {
 public:
     explicit DefaultApiImpl(const std::shared_ptr<Pistache::Rest::Router>& rtr,
-                            org::turland::yara::Manager& yara);
+                            org::turland::yara::Manager& yara,
+                            org::turland::yara::Configurator& configurator);
     ~DefaultApiImpl() override = default;
     void externalvar(const ExternalVariable &externalVariable, Pistache::Http::ResponseWriter &response);
     void get_info(Pistache::Http::ResponseWriter &response);
@@ -63,6 +65,7 @@ public:
 
 private:
     org::turland::yara::Manager& yara;
+    org::turland::yara::Configurator& configurator;
 };
 
 } // namespace org::turland::yara::api

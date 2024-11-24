@@ -2,55 +2,53 @@
 #define YARA_TYPES_H
 // #include "YaraTypes.h"
 #include <vector>
-#include <string>
-#include <map>
+#include <iostream>
 
-#include <yara.h>
+#include "pistache/http_defs.h"
 
 #include "Rule.h"
-#include "ExternalVariable.h"
+#include "YaraHelpers.h"
 
 namespace org::turland::yara
 {
+namespace modell = org::turland::yara::model;
 
-using  org::turland::yara::model::Rule;
-using  org::turland::yara::model::ExternalVariable;
 struct YaraScanResultRules{
     /**
      * provides an aceesible  vector rules
-     * unfortunately the ScanResult class does not offer reference access to its Rules
+     * unfortunately the (pistache)ScanResult class does not offer reference access to its Rules
      */
-    std::vector<Rule> matched_rules;
+    std::vector<modell::Rule> matched_rules;
 };
 
-struct YaraCompiler{
-    YaraCompiler(int &rule_version);
-    ~YaraCompiler();
-    bool create();
-    bool destroy();
-    int add_file(FILE* rule_file, const char * ns, const char *error_file);
-    int get_rules(YR_RULES** rules);
-    bool defineExternal(const ExternalVariable &externalVariable);
+
+struct HttpYaraError : public Pistache::Http::HttpError
+{
+    HttpYaraError(Pistache::Http::Code code, std::string reason, int yara_error_code):
+        HttpError(code,reason),yara_error_code_(yara_error_code){
+        std::ostringstream ss;
+        ss << "Yara Error " << yara_error_code_ << ", " << getYaraErrorMsg(yara_error_code_) << ", because " << reason;
+        better_reason_ = ss.str();
+        LOG(ERROR) << better_reason_;
+
+    }
+    HttpYaraError(int code, std::string reason, int yara_error_code):
+        HttpError(code,reason),yara_error_code_(yara_error_code){
+        std::ostringstream ss;
+        ss << "Yara Error " << yara_error_code_ << ", " << getYaraErrorMsg(yara_error_code_) << ", because " << reason;
+        better_reason_ = ss.str();
+        LOG(ERROR) << better_reason_;
+    }
+
+    ~HttpYaraError() noexcept override = default;
+    std::string reason() const { return better_reason_; }
+    const char* what() const noexcept override { return better_reason_.c_str(); }
+
+
 private:
-    // this should handle the invalidation of the compiler by a failed add
-    // ie destroy the compiler on a failure
-    // But it needs to return failure for a failed add so the 
-    // client can replay(sigh) the adds prior to the failure
-    YR_COMPILER* compiler;
-    int &rule_version;
-    bool get_rules_called;
-    bool add_called;
- };
-
-struct YaraScanner{
-    YR_SCANNER* scanner;
-    long        rule_version;
-    YaraScanner(long  _rule_version):scanner(nullptr),rule_version(_rule_version){}
-    YaraScanner(YR_SCANNER* _scanner,long  _rule_version):scanner(_scanner),rule_version(_rule_version){}
-    bool defineExternal(const ExternalVariable &externalVariable);
+    int yara_error_code_;
+    std::string better_reason_;
 };
 
-typedef std::map<long,YaraScanner>  scanner_container;
-typedef scanner_container::iterator scanner_container_it;
-}
+} // namespace org::turland::yara
 #endif

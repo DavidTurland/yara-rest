@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
     org::turland::yara::Manager yara;
     httpEndpoint->init(opts);
 
-    DefaultApiImpl DefaultApiserver(router,yara);
+    DefaultApiImpl DefaultApiserver(router, yara, configurator);
     DefaultApiserver.init();
 
     httpEndpoint->setHandler(router->handler());

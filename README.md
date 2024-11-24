@@ -1,25 +1,24 @@
 # yara-rest
 
-A [REST](https://en.wikipedia.org/wiki/Representational_state_transfer) server supporting requests to the [Yara](https://github.com/VirusTotal/yara) scanner  
-It is fully defined in [OpenAPI](https://www.openapis.org/) 3.0, and implemented using the C++ REST server framework [pistache](https://pistacheio.github.io/pistache/)
+A [REST](https://en.wikipedia.org/wiki/Representational_state_transfer) server supporting requests to the [Yara](https://github.com/VirusTotal/yara) compiler and scanner  
+The REST API is fully defined in [OpenAPI](https://www.openapis.org/) 3.0, and implemented using the C++ REST server framework [pistache](https://pistacheio.github.io/pistache/)
 
 # Author
 David Turland
 
 ## Description
 
-Provides a performant, multi-threaded (via threadpool), REST server allowing compiling rules, defining external variables, and efficient file scanning using persistent, per-thread, scanner objects
+Provides a performant, multi-threaded (via threadpool), REST server allowing compiling rules, defining external variables, and efficient file and string scanning using persistent, per-thread, scanner objects
 
 Each thread has its own set of scanners, copied, as required, from the golden set of scanners
 maintained in the main thread. This avoids unnecessary scanner creation per request
 
-However If rules are changed, the reliant scanners are magicly outdated
 
-## end-points
+## REST end-points
 Defined in the OpenAPI spec, but here:
 1. `/externalvar`   defining external variables for compiler, rules, and 'particular' scanners
-1. `/rules/compile` compiling rules from file(s) each with an optional namespace
-1. `/scan/file`     scanning files with a particular scanner
+1. `/rules/compile` compiling rule(s) from file(s) each with an optional namespace
+1. `/scan/file`     scan a file with a particular scanner
 1. `/scan/string`   scan a string with a particular scanner
 1. `/info`          lightweight call to obtain server status
 
@@ -38,28 +37,32 @@ I have forked yara, and added a functioning `yr_scanner_copy` on the dturland_fe
 YR_API int yr_scanner_copy(YR_SCANNER* scanner_root,YR_SCANNER** scanner)
 ```
 
-## cmake
-
-# Building Docker image, and running as container
+# Downloading
 ```bash
 git clone --recurse-submodules https://github.com/DavidTurland/yara-rest.git
 cd yara-rest
 git submodule update --init
-
+```
+# Building Yara-REST Docker image, and running Yara-REST server in a container
+```bash
 make build
 ```
-## Running container in Docker
-`/etc/yara`       path for config.yaml
-`/etc/yara/rules` default rule file dir (specified in config.yaml)
-`/var/yara/samples`       path for files to be tested
-
+## Running the yara-rest server in a Docker container
+These are the mapped volumesL
+```
+`/etc/yara`           path for config.yaml
+`/etc/yara/rules`     default rule file dir (specified in config.yaml)
+`/var/yara/samples`   path for files to be tested
+```
+To run:
 ```bash
 make run
 ```
 
+
 # Building and running locally
 
-## Building locally
+## Prerequisites
 
 Packages required (Dockerfile option might be easier :-) )
 ```
@@ -82,8 +85,7 @@ apt-get install -y \
   libtool \
   openjdk-17-jre-headless
 ```
-
-Build using cmake
+## Building locally using cmake
 
 ```bash
 git clone --recurse-submodules  https://github.com/DavidTurland/yara-rest.git
@@ -98,21 +100,44 @@ cmake --build build --target install
 # ccmake ..
 ```
 
-## Running locally
+## Running Yara REST-server locally
 This will start a server running on port `8080`
 ```bash
 yara-server
 ```
+# Clients
+## Auto-generating yara-rest server clients
+### List available client generators
+```bash
+make generator_options
+```
+
+### Generate a python(the default) client
+```bash
+make gen_client
+```
+the generated code will be in the directory `gen_client`  
+set the OAPI_GEN_DIR variable to override the directory  
+eg, to generate a python(the default) client in ./my_python_client
+```bash
+make gen_client OAPI_GEN_DIR=my_python_client
+```
+
+Set the OAPI_GENERATOR variable to override the default generator
+
+eg, to generate a golang client
+```bash
+make gen_client OAPI_GENERATOR=spring
+```
 
 
-## Test client
-One of the joys of OpenAPI is the swagger editor which not only allows editting
-but is a flexible client
+## Swagger  client
+The Swagger OpenAPI editor https://editor.swagger.io is also a flexible client
 
-https://editor.swagger.io/
 ![editor_swagger_io_screenshot](https://user-images.githubusercontent.com/11562561/226901696-0f7e0371-a8dc-45f7-9d6e-047c75154fb5.png)
 
-## example requests
+# Yara REST API Examples (demo'd using curl)
+(The above swa)
 ### compile a yara rules file ( assumes the the docker volume mount $(pwd)rules:/etc/yara/rules
 
 ```bash
@@ -148,7 +173,6 @@ curl -X 'POST' \
 
 {"returncode":"","rules":[{"identifier":"Example_One","meta":{"my_identifier_1":"Some string data"},"namespace":"test"}]}
 
-
 ```
 
 
@@ -170,19 +194,31 @@ curl -X 'POST' \
 
 ```
 
+### Request REST-server info
+```bash
+curl -X 'GET' \
+  'http://127.0.0.1:8080/api/info' \
+  -H 'accept: application/json'  \
+  -H 'Content-Type: application/json' 
 
 
-# Performance
+# response body
+ {"meta":{"api_version":"0.3.0","num_threads":"20","openapi_version":"3.0.0"},"returncode":""} 
+```
+
+# Performance TODO
 https://locust.io/#install
-
+```bash
 python3 -m venv ./.venv
 source ./.venv/bin/activate
 pip install locust
+```
 
 # TODO
 
 Docker
 - [x]  Docker image build
+- [x]  Docker image run
 
 Additonal end-points:
 - [x] ability to scan strings
@@ -199,24 +235,13 @@ Implement placeholder functionality
 - [ ] save and load compiled rules
 - [ ] magic to outdate scanner
 
-## Developing yara-rest
-### The manual way
-
-The docker invocation in `docker_openapi.sh` will regenerate the C++ Pistache files in `gen/*`
-
-```bash
-# to generate
-bash docker_gen_openapi.sh -g
-cd build
-make
-```
-### The Docker way
-Or you can just build using docker(see above)
-```bash
-docker build  -f Dockerfile -t yara_rest .
-```
 
 ## Thanks to
 Starting point for YaraManager* taken from this C++ api to yara:
 
 https://mez0.cc/posts/yaraengine/
+
+# Exception Strategy
+All calls to yara are expected to succeed, so yara errors will be thrown immediately as HttpErrors
+yara likes returning non-ERROR_SUCCESS as ERROR_INSUFFICIENT_MEMORY for many things but HttpErrors should take the yara error code into ccount
+

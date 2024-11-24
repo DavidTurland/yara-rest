@@ -5,8 +5,9 @@
 
 #include "ScannerThreadLocal.h"
 #include "YaraManager.h"
-#include "YaraHelpers.hpp"
+#include "YaraHelpers.h"
 #include "yara_scanner_copy.h"
+
 namespace org::turland::yara
 {
 ScannerThreadLocal::ScannerThreadLocal():manager{},rule_version{}{}
@@ -63,7 +64,7 @@ int ScannerThreadLocal::capture_matches(
 
     if (message == CALLBACK_MSG_RULE_MATCHING)
     {
-        Rule s_rule;
+        modell::Rule s_rule;
         YR_RULE* rule = (YR_RULE*)message_data;
         {
             std::string rule_name = rule->identifier;

@@ -1,9 +1,8 @@
 openapi: "3.0.0"
 info:
   version: 0.3.0
-  title: Yara Rest Server
-  description: A simple Yara Rest server
-  termsOfService: http://swagger.io/terms/
+  title: Yara REST Server
+  description: A Yara REST server
   contact:
     name: David Turland
     email: david@turland.org
@@ -13,7 +12,7 @@ info:
     url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
   - url: http://127.0.0.1:{port}/{basepath}
-    description: Yara Test server
+    description: Yara Localhost REST-Server
     variables:
       port:
         enum:
@@ -24,6 +23,11 @@ servers:
 paths:
   /info:
     get:
+      description: |
+        Requests server info
+         - API version
+         - OpenAPI version
+         - num_threads
       operationId: get_info
       responses:
         '200':
@@ -46,9 +50,13 @@ paths:
       responses:
         '200':
           description: OK
+        '412':
+          description: Unexpected Compiler Error
+        '500':
+          description: Compiler broken by previous call
   /rules/save:
     put:
-      description: 'saves precompiled rules'
+      description: Saves compiled rules'
       operationId: rules_save_put
       parameters:
         - name: filename
@@ -62,7 +70,7 @@ paths:
           description: OK
   /rules/load:
     post:
-      description: 'loads presaved compiled rules'
+      description: Loads pre-compiled rules'
       operationId: rules_load_post
       parameters:
         - name: filename
@@ -88,6 +96,10 @@ paths:
       responses:
         '200':
           description: OK
+        '412':
+          description: Rules already extracted, cannot define new external variable
+        '500':
+          description: Define External broken by previous call
   /scan/file:
     post:
       description: |
@@ -104,6 +116,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ScanResult'
+        '412':
+          description: Unexpected Scan Error
   /scan/string:
     post:
       description: |
@@ -119,7 +133,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ScanResult'            
+                $ref: '#/components/schemas/ScanResult'
+        '412':
+          description: Unexpected Scan Error
 components:
   requestBodies:
     ScanFileBody:
@@ -208,8 +224,8 @@ components:
           additionalProperties:
             type: string
           example:
-            version : '0.3'
-            texture : shiny
+            version : '0.3.0'
+            num_threads : '20'
     Error:
       type: object
       required:
@@ -238,9 +254,10 @@ components:
       description: scan file request with a scanner( referenced by id)
       properties:
         scannerid:
-          description: scanner id to use
+          description: scanner id to use (default 0)
           type: integer
           format: int32
+          default: 0
           example: 0 
         filename:
           type: string
@@ -248,16 +265,22 @@ components:
     ScanString:
       type: object
       description: scan string with a scanner( referenced by id)
+      required:
+        - data
       properties:
         scannerid:
-          description: scanner id to use
+          description: scanner id to use (default 0)
           type: integer
           format: int32
+          default: 0
           example: 0 
         data:
           type: string
           example: wibble.com
         length:
+          description: |
+            length of data. If ommitted then data is assumed to be 
+                            a string and length == strlen ( you have been warned)
           type: integer
           format: int32
           example: 10
@@ -291,7 +314,7 @@ components:
             reason : meta2
         strings:
           type: array
-          maxItems: 3
+          maxItems: 1000
           items:
             type: string
           example:
@@ -300,4 +323,4 @@ components:
         namespace:
           type: string
           example:
-            domain : wibblenamespace
+            - wibblenamespace

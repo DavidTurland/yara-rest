@@ -10,29 +10,30 @@
 * Do not edit the class manually.
 */
 /*
- * ScanString.h
+ * InfoResult_meta.h
  *
- * scan string with a scanner( referenced by id)
+ * 
  */
 
-#ifndef ScanString_H_
-#define ScanString_H_
+#ifndef InfoResult_meta_H_
+#define InfoResult_meta_H_
 
 
 #include <string>
+#include <map>
 #include <nlohmann/json.hpp>
 
 namespace org::turland::yara::model
 {
 
 /// <summary>
-/// scan string with a scanner( referenced by id)
+/// 
 /// </summary>
-class  ScanString
+class  InfoResult_meta
 {
 public:
-    ScanString();
-    virtual ~ScanString() = default;
+    InfoResult_meta();
+    virtual ~InfoResult_meta() = default;
 
 
     /// <summary>
@@ -52,44 +53,33 @@ public:
     /// </summary>
     bool validate(std::stringstream& msg, const std::string& pathPrefix) const;
 
-    bool operator==(const ScanString& rhs) const;
-    bool operator!=(const ScanString& rhs) const;
+    bool operator==(const InfoResult_meta& rhs) const;
+    bool operator!=(const InfoResult_meta& rhs) const;
 
     /////////////////////////////////////////////
-    /// ScanString members
+    /// InfoResult_meta members
 
-    /// <summary>
-    /// scanner id to use (default 0)
-    /// </summary>
-    int32_t getScannerid() const;
-    void setScannerid(int32_t const value);
-    bool scanneridIsSet() const;
-    void unsetScannerid();
     /// <summary>
     /// 
     /// </summary>
-    std::string getData() const;
-    void setData(std::string const& value);
+    std::string getVersion() const;
+    void setVersion(std::string const& value);
     /// <summary>
-    /// length of data. If ommitted then data is assumed to be                  a string and length &#x3D;&#x3D; strlen ( you have been warned) 
+    /// 
     /// </summary>
-    int32_t getLength() const;
-    void setLength(int32_t const value);
-    bool lengthIsSet() const;
-    void unsetLength();
+    std::string getNumThreads() const;
+    void setNumThreads(std::string const& value);
 
-    friend  void to_json(nlohmann::json& j, const ScanString& o);
-    friend  void from_json(const nlohmann::json& j, ScanString& o);
+    friend  void to_json(nlohmann::json& j, const InfoResult_meta& o);
+    friend  void from_json(const nlohmann::json& j, InfoResult_meta& o);
 protected:
-    int32_t m_Scannerid;
-    bool m_ScanneridIsSet;
-    std::string m_Data;
+    std::string m_Version;
 
-    int32_t m_Length;
-    bool m_LengthIsSet;
+    std::string m_Num_threads;
+
     
 };
 
 } // namespace org::turland::yara::model
 
-#endif /* ScanString_H_ */
+#endif /* InfoResult_meta_H_ */

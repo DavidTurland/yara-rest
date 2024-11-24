@@ -1,6 +1,6 @@
 /**
-* Yara Rest Server
-* A simple Yara Rest server
+* Yara REST Server
+* A Yara REST server
 *
 * The version of the OpenAPI document: 0.3.0
 * Contact: david@turland.org

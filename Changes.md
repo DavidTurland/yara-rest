@@ -1,4 +1,24 @@
 
+# Version 0.4.0
+## features:
+
+### building
+Improved Dockerfile to only build changed stages ( normally just the last stage (yay) )
+### runtime configuration  
+
+## Endpoints
+/info endpoint starts to return useful info
+## Robustness
+Exceptions more copious and useful
+compiler error state tracked
+Error response added to OpenAPI spec
+## Tweaks
+split out YaraScanner and YaraCompiler
+
+## bug fixes
+
+
+
 # API Spec Version 0.3.0
 ## features:
   For a scan result each matched rule is returned with

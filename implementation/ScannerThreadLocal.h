@@ -2,11 +2,14 @@
 #define SCANNER_THREAD_LOCAL_H
 // #include "ScannerThreadLocal.h"
 #include "YaraTypes.h"
-#include "ScanResult.h"
+#include "YaraScanner.h"
+
 
 namespace org::turland::yara
 {
-using namespace org::turland::yara::model;
+namespace modell = org::turland::yara::model;
+
+//forward
 class Manager;
 
 class ScannerThreadLocal{
@@ -24,10 +27,11 @@ private:
     bool CreateScanner();
     static int capture_matches(YR_SCAN_CONTEXT* context, int message, void* message_data, void* user_data);
 
-    // each thread has its own scanners, copied form the managers on demand
+    // each thread has its own scanners, copied from the managers on demand
     scanner_container scanners;
 
     Manager * manager;
+
     // track this to see if scanners need recopying from manager
     double rule_version;
 };

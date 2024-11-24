@@ -32,8 +32,11 @@ inline bool vectorContainsString(std::vector<std::string> haystack, std::string 
 	}
 	return false;
 }
-
+void log_rules(const std::vector<model::Rule>& rules);
 void log_rule(const org::turland::yara::model::Rule& rule);
+
+
+std::string getYaraErrorMsg(int yara_err);
 
 } // namespace org::turland::yara
 #endif

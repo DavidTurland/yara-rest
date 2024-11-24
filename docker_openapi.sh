@@ -28,16 +28,14 @@ echo $args
 echo $meldy
 
 
-ADMINDIR=`pwd`
-YARA_RESTDIR=$ADMINDIR/../yara-rest
-GENDIR=${YARA_RESTDIR}
+YARA_RESTDIR=`pwd`
 
-docker run --rm -v "${YARA_RESTDIR}:/local" openapitools/openapi-generator-cli $args
+docker run --rm -v "${YARA_RESTDIR}:/local" openapitools/openapi-generator-cli $gen_args
 
 if [[ "true" == "$run_meld" ]]; then
-meld  ${YARA_RESTDIR}/gen/impl/ ${YARA_RESTDIR}/implementation/
+  meld  ${YARA_RESTDIR}/gen/impl/ ${YARA_RESTDIR}/implementation/
 fi
-
+  
 exit
 docker run --rm -v "${YARA_RESTDIR}:/local" openapitools/openapi-generator-cli config-help -g cpp-pistache-server
 

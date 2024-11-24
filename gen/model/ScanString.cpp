@@ -1,6 +1,6 @@
 /**
-* Yara Rest Server
-* A simple Yara Rest server
+* Yara REST Server
+* A Yara REST server
 *
 * The version of the OpenAPI document: 0.3.0
 * Contact: david@turland.org
@@ -24,7 +24,6 @@ ScanString::ScanString()
     m_Scannerid = 0;
     m_ScanneridIsSet = false;
     m_Data = "";
-    m_DataIsSet = false;
     m_Length = 0;
     m_LengthIsSet = false;
     
@@ -61,8 +60,8 @@ bool ScanString::operator==(const ScanString& rhs) const
     
     ((!scanneridIsSet() && !rhs.scanneridIsSet()) || (scanneridIsSet() && rhs.scanneridIsSet() && getScannerid() == rhs.getScannerid())) &&
     
-    
-    ((!dataIsSet() && !rhs.dataIsSet()) || (dataIsSet() && rhs.dataIsSet() && getData() == rhs.getData())) &&
+    (getData() == rhs.getData())
+     &&
     
     
     ((!lengthIsSet() && !rhs.lengthIsSet()) || (lengthIsSet() && rhs.lengthIsSet() && getLength() == rhs.getLength()))
@@ -80,8 +79,7 @@ void to_json(nlohmann::json& j, const ScanString& o)
     j = nlohmann::json::object();
     if(o.scanneridIsSet())
         j["scannerid"] = o.m_Scannerid;
-    if(o.dataIsSet())
-        j["data"] = o.m_Data;
+    j["data"] = o.m_Data;
     if(o.lengthIsSet())
         j["length"] = o.m_Length;
     
@@ -94,11 +92,7 @@ void from_json(const nlohmann::json& j, ScanString& o)
         j.at("scannerid").get_to(o.m_Scannerid);
         o.m_ScanneridIsSet = true;
     } 
-    if(j.find("data") != j.end())
-    {
-        j.at("data").get_to(o.m_Data);
-        o.m_DataIsSet = true;
-    } 
+    j.at("data").get_to(o.m_Data);
     if(j.find("length") != j.end())
     {
         j.at("length").get_to(o.m_Length);
@@ -131,15 +125,6 @@ std::string ScanString::getData() const
 void ScanString::setData(std::string const& value)
 {
     m_Data = value;
-    m_DataIsSet = true;
-}
-bool ScanString::dataIsSet() const
-{
-    return m_DataIsSet;
-}
-void ScanString::unsetData()
-{
-    m_DataIsSet = false;
 }
 int32_t ScanString::getLength() const
 {

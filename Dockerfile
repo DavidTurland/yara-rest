@@ -1,6 +1,7 @@
 # The new base image to contain runtime dependencies
 
-FROM debian:sid-slim AS base
+# FROM debian:sid-slim AS base
+FROM debian:trixie-20241111-slim as base
 
 # gcc 10 - nope!!!
 # FROM bitnami/minideb:latest AS base
@@ -19,49 +20,50 @@ RUN set -ex        ; \
 FROM base AS builder
 
 RUN set -ex                                                                                                                    ; \
-    apt-get install -y g++ curl meson flex bison  make cmake  pkg-config git automake autoconf libtool openjdk-17-jre-headless ; \
-    mkdir -p $INSTALL_DIR/bin                                                                                                  ; \
-    mkdir -p $INSTALL_DIR/lib                                                                                                  ; \
-    mkdir -p $BUILD_DIR/bin                                                                                                    ; \
-    curl -L https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/${OPENAPI_GEN_VER}/openapi-generator-cli-${OPENAPI_GEN_VER}.jar   \
-         -o $BUILD_DIR/openapi-generator-cli.jar
-
-
-COPY . $BUILD_DIR
+    apt-get install -y g++ curl meson flex bison cmake      \
+                       pkg-config git automake autoconf     \
+                       libtool make                       ; \
+    mkdir -p $INSTALL_DIR/bin                             ; \
+    mkdir -p $INSTALL_DIR/lib                             ; \
+    mkdir -p $BUILD_DIR/bin                                                                                             
 
 # build custom yara  
+COPY yara $BUILD_DIR/yara
 RUN set -ex                                               ; \
     cd $BUILD_DIR/yara                                    ; \
     ./bootstrap.sh                                        ; \
-    ./configure --prefix=$INSTALL_DIR                 \
-                --disable-static                      \
+    ./configure --prefix=$INSTALL_DIR                       \
+                --disable-static                            \
                 --enable-cuckoo                           ; \
     make install
 
 # build nlohmann
+COPY json $BUILD_DIR/json
 RUN set -ex                                               ; \
     cd $BUILD_DIR/json                                    ; \
     rm -rf   build                                        ; \
     mkdir -p build                                        ; \
-    cmake -S . -G Ninja -B build                               \
-               -D CMAKE_INSTALL_PREFIX=$INSTALL_DIR   \
+    cmake -S . -G Ninja -B build                            \
+               -D CMAKE_INSTALL_PREFIX=$INSTALL_DIR         \
                -D JSON_BuildTests=OFF                     ; \
     cmake --build build                                   ; \
     cmake --build build --target install
 
 # build yaml-cpp
+COPY yaml-cpp  $BUILD_DIR/yaml-cpp 
 RUN set -ex                                               ; \
     cd $BUILD_DIR/yaml-cpp                                ; \
     rm -rf   build                                        ; \
     mkdir -p build                                        ; \
-    cmake -S . -G Ninja -B build                       \
-               -D CMAKE_INSTALL_PREFIX=$INSTALL_DIR    \
+    cmake -S . -G Ninja -B build                            \
+               -D CMAKE_INSTALL_PREFIX=$INSTALL_DIR         \
                -D YAML_BUILD_SHARED_LIBS=OFF              ; \
     cmake --build build                                   ; \
     cmake --build build --target install
 
 # build pistache
 # --wipe
+COPY pistache $BUILD_DIR/pistache
 RUN set -ex                                               ; \
     cd $BUILD_DIR/pistache                                ; \
     meson setup build                      \   
@@ -76,11 +78,15 @@ RUN set -ex                                               ; \
 FROM builder AS yara_rest_builder
 
 # build yara-rest
-# COPY . $BUILD_DIR/yara_rest
+
+COPY CMakeLists.txt $BUILD_DIR/yara_rest/CMakeLists.txt
+COPY conf $BUILD_DIR/yara_rest/conf
+COPY gen $BUILD_DIR/yara_rest/gen
+COPY implementation $BUILD_DIR/yara_rest/implementation
+COPY test $BUILD_DIR/yara_rest/test
 
 RUN set -ex                                         ; \
-    cd $BUILD_DIR                                   ; \
-    bash local_openapi.sh -g                        ; \
+    cd $BUILD_DIR/yara_rest                         ; \
     rm -rf   build                                  ; \
     mkdir -p build                                  ; \
     cmake -S . -G Ninja -B build               \

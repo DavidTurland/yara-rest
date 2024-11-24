@@ -1,10 +1,28 @@
 pwd:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+OAPI_GENERATOR=python
+OAPI_GEN_DIR=gen_client
 
 
-.PHONY: build build_remainder run
+.PHONY: gen_server gen_dirs client_options gen_client build run
+
+gen_server:
+	bash docker_openapi.sh
 
 build:
-	docker build  -f Dockerfile -t yara_rest .
+	docker build --rm=false -f Dockerfile -t yara_rest .
+
+gen_dirs: $(pwd)/$(OAPI_GEN_DIR)
+	mkdir -p $(pwd)/$(OAPI_GEN_DIR)
+
+generator_options:
+	docker run openapitools/openapi-generator-cli list
+
+gen_client:
+	docker run --rm -v "${pwd}:/local" openapitools/openapi-generator-cli generate \
+    -i /local/yara_openapi.yaml \
+    -g $(OAPI_GENERATOR) \
+    -o /local/$(OAPI_GEN_DIR)
+
 
 dirs:
 	mkdir -p rules

@@ -1,6 +1,6 @@
 /**
-* Yara Rest Server
-* A simple Yara Rest server
+* Yara REST Server
+* A Yara REST server
 *
 * The version of the OpenAPI document: 0.3.0
 * Contact: david@turland.org
@@ -83,10 +83,10 @@ bool Rule::validate(std::stringstream& msg, const std::string& pathPrefix) const
         const std::string currentValuePath = _pathPrefix + ".strings";
                 
         
-        if (value.size() > 3)
+        if (value.size() > 1000)
         {
             success = false;
-            msg << currentValuePath << ": must have at most 3 elements;";
+            msg << currentValuePath << ": must have at most 1000 elements;";
         }
         { // Recursive validation of array elements
             const std::string oldValuePath = currentValuePath;

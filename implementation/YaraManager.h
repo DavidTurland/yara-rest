@@ -7,22 +7,26 @@
  * This is shrunk,extended from: 
  * https://raw.githubusercontent.com/mez-0/YaraEngine/main/YaraEngine/Yara.hpp
  * 
- * 
+ * The friendly face of Yara seen from the API
+ *   delegates some stuff (external vars) to YaraCcompiler and YaraScanner
 */
 
 #include <thread>
 #include <map>
 #include <shared_mutex>
+#include <string>
+#include <sstream> 
 
 #include "YaraTypes.h"
 #include "ScanResult.h"
 #include "ScannerThreadLocal.h"
 #include "ExternalVariable.h"
-
+#include "YaraScanner.h"
+#include "YaraCompiler.h"
 
 namespace org::turland::yara
 {
-    using org::turland::yara::model::ExternalVariable;
+    namespace modell = org::turland::yara::model;
 
     class Manager{
     public:
@@ -33,7 +37,7 @@ namespace org::turland::yara
 
         ~Manager();
 
-
+        // delegated to YaraCompiler
         bool compileRulesFromFile(std::string file_name,const char * ns);
 
         // not exposed in rest api
@@ -53,8 +57,10 @@ namespace org::turland::yara
          * 'meta' contained in externalVariable
          * if scanner (defined by id) then see getScanner for how that 
          * scanner is retrieved
+         * delegated to YaraCompiler for compiler external variables 
+         * delegated to YaraScanner for scanner external variables 
         */
-        bool defineExternal(const ExternalVariable &externalVariable);
+        bool defineExternal(const modell::ExternalVariable &externalVariable);
 
     private:
         YaraCompiler compiler;
@@ -64,6 +70,7 @@ namespace org::turland::yara
         YR_RULES* rules = nullptr;
         bool compiler_has_stuff = false;
         bool compiler_is_broke = false;
+        bool scanner_is_broke = false;
         // when we expect an instantiated rules object
         YR_RULES* getRules();
 
@@ -76,9 +83,9 @@ namespace org::turland::yara
         // compiling rules should be mutexed
         mutable std::shared_mutex compiler_mutex_;
 
-        void createCompiler();
+        //void createCompiler();
 
-        std::string getErrorMsg(int err);
+        // std::string getErrorMsg(int err);
 
         inline static thread_local ScannerThreadLocal yaratl;
     };

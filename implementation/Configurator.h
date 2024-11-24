@@ -10,7 +10,7 @@ namespace org::turland::yara
 {
 class Configurator{
 public:
-    Configurator(std::string config_file):version("0.2.0"){
+    Configurator(std::string config_file){
         config = YAML::LoadFile(config_file);
         meta   = config["meta"];
         server = config["server"];
@@ -20,21 +20,27 @@ public:
         }
     }
 
+    template <typename T> T _get_node_value(YAML::Node node,const std::string& key, T def){
+        if (node[key]){
+            return node[key].as<T>();
+        }else{
+            return def;
+        }
+    }
+    
     int port(){
-        return server["port"].as<int>();
+        return _get_node_value(server,"port",8080);
     }
     
     int num_threads(){
-        return server["num_threads"].as<int>();;
+        return _get_node_value(server,"num_threads",-1);
     }
 
 private:
     YAML::Node config;
     YAML::Node meta;
     YAML::Node server;
-    YAML::Node yara ;        
-    Version version;
-
+    YAML::Node yara ;    
 };
 }
 #endif

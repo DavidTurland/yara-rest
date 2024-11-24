@@ -1,6 +1,6 @@
 /**
-* Yara Rest Server
-* A simple Yara Rest server
+* Yara REST Server
+* A Yara REST server
 *
 * The version of the OpenAPI document: 0.3.0
 * Contact: david@turland.org
@@ -59,7 +59,7 @@ public:
     /// ScanFile members
 
     /// <summary>
-    /// scanner id to use
+    /// scanner id to use (default 0)
     /// </summary>
     int32_t getScannerid() const;
     void setScannerid(int32_t const value);
