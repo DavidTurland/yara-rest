@@ -220,18 +220,17 @@ Docker
 - [x]  Docker image build
 - [x]  Docker image run
 
-Additonal end-points:
+Additonal functioning end-points:
 - [x] ability to scan strings
-- [ ] reload 
+- [ ] load compiled rules 
+- [ ] save compiled rules 
 
 Functionality:
 - [x] Full Rule informations captured in scan result
 - [x] configuration options (ports, rules)
-- [ ] configuration options (external variables etc)
+- [ ] Allow restarting of the compiler call path ( add_rules --> get_rules --> RESTART --> add_rules --> get_rules)
+- [ ] configuration to load rules, external var, etc at start-up
 - [ ] https support
-
-
-Implement placeholder functionality
 - [ ] save and load compiled rules
 - [ ] magic to outdate scanner
 
@@ -242,6 +241,7 @@ Starting point for YaraManager* taken from this C++ api to yara:
 https://mez0.cc/posts/yaraengine/
 
 # Exception Strategy
-All calls to yara are expected to succeed, so yara errors will be thrown immediately as HttpErrors
-yara likes returning non-ERROR_SUCCESS as ERROR_INSUFFICIENT_MEMORY for many things but HttpErrors should take the yara error code into ccount
+Internal state tracking should avoid bound-to-fail calls to yara  
+Ergo, all calls to yara are expected to succeed, and yara errors will be thrown immediately as YaraHttpErrors at point of contact  
+yara likes returning non-ERROR_SUCCESS as ERROR_INSUFFICIENT_MEMORY for many things but YaraHttpErrors should take the yara error code into ccount
 
