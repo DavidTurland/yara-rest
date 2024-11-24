@@ -1,0 +1,12 @@
+#ifndef PROJECT_META_H
+#define PROJECT_META_H
+#include <string>
+namespace org::turland::yara
+{
+struct ProjectMeta{
+    static inline  std::string API_VERSION{"${API_VERSION}"};
+    static inline  std::string OPENAPI_VERSION{"${OPENAPI_VERSION}"};
+};
+
+}
+#endif

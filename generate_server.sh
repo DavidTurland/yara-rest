@@ -1,4 +1,4 @@
-
+#!/bin/bash
 gen_args="generate \
     -i /local/yara_openapi.yaml \
     -g cpp-pistache-server \
@@ -35,6 +35,24 @@ docker run --rm -v "${YARA_RESTDIR}:/local" openapitools/openapi-generator-cli $
 if [[ "true" == "$run_meld" ]]; then
   meld  ${YARA_RESTDIR}/gen/impl/ ${YARA_RESTDIR}/implementation/
 fi
+
+# generate implementation/ProjectMeta.hpp
+
+spec_file=${YARA_RESTDIR}/yara_openapi.yaml
+template_file=${YARA_RESTDIR}/project_meta_h.tmpl
+template_file_dest=$YARA_RESTDIR/implementation/ProjectMeta.hpp
+
+api_version=`perl -lne 'print $1 if /^\s+version:\s+([0-9.]+)/' $spec_file`
+echo "API verion      : $api_version"
+
+openapi_version=`perl -lne 'print $1 if /^openapi:\s+\"([0-9.]+)\"/' $spec_file`
+echo "OpenAPI version : $openapi_version"
+
+export API_VERSION=$api_version
+export OPENAPI_VERSION=$openapi_version
+cat $template_file | envsubst > $template_file_dest
+
+
   
 exit
 docker run --rm -v "${YARA_RESTDIR}:/local" openapitools/openapi-generator-cli config-help -g cpp-pistache-server

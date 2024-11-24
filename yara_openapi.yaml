@@ -1,6 +1,6 @@
 openapi: "3.0.0"
 info:
-  version: 0.3.0
+  version: 0.4.0
   title: Yara REST Server
   description: A Yara REST server
   contact:
@@ -68,6 +68,8 @@ paths:
       responses:
         '200':
           description: OK
+        '501':
+          description: Not Implemented (yet)
   /rules/load:
     post:
       description: Loads pre-compiled rules'
@@ -82,6 +84,8 @@ paths:
       responses:
         '200':
           description: OK
+        '501':
+          description: Not Implemented (yet)
   /externalvar:
     post:
       description: defines a new external variable

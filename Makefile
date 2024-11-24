@@ -3,10 +3,10 @@ OAPI_GENERATOR=python
 OAPI_GEN_DIR=gen_client
 
 
-.PHONY: gen_server gen_dirs client_options gen_client build run
+.PHONY: gen_server build gen_dirs generator_options gen_client dirs run
 
 gen_server:
-	bash docker_openapi.sh
+	bash generate_server.sh
 
 build:
 	docker build --rm=false -f Dockerfile -t yara_rest .
